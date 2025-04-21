@@ -81,7 +81,7 @@ public class Server{
 				 while(true) {
 					    try {
 					    	String data = in.readObject().toString();
-					    	System.out.println("client: " + count + " sent: " + data);
+					    	System.out.println("client " + count + ": " + data);
 					    	updateClients("client #"+count+" said: "+data);
 					    	
 					    	}
