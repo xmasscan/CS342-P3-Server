@@ -15,6 +15,7 @@ public class Server{
 
 	int count = 1;	
 	ArrayList<ClientThread> clients = new ArrayList<ClientThread>();
+	ArrayList<Game> Games = new ArrayList<Game>();
 	TheServer server;
 	
 	
