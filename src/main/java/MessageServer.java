@@ -34,18 +34,18 @@ public class MessageServer implements Serializable {
         return message;
     }
 
-    public void setUpGame(String GameID, ArrayList<ArrayList<Integer>> board, Integer numCollums, Integer numRows, ArrayList<String> chat, Integer numChats){
+    public void setUpGame(String GameID, ArrayList<ArrayList<Integer>> board, Integer numColumns, Integer numRows, ArrayList<String> chat, Integer numChats){
         messageType = new Integer(1);
         good = true;
         message = "1:" + GameID + "," + "2:";
-        for (int i = 0; i <numCollums; i++) {
+        for (int i = 0; i <numColumns; i++) {
             message += "{";
             for (int j = 0; j < numRows; j++) {
                 message += " " + board.get(i).get(j).toString();
             }
             message += "}";
         } 
-        message += ",3:" + numCollums.toString() + ",4:" + numRows.toString();
+        message += ",3:" + numColumns.toString() + ",4:" + numRows.toString();
 
         message += ",5:";
 
