@@ -68,5 +68,18 @@ public class Board {
     // CHECK BOARD HELPER FUNCTIONS //
 
     // Vertical Checking
-    // Supply
+    // Supply bottom most-possible piece
+    // Assumes at minimum that four cells exist above it
+    private boolean verticalCheck(int row, int col){
+        Chip player = board[row][col];
+        String color = player.color;
+        // check 3 above columns
+        for(int i = 1; i < 4; i++) {
+            if (board[row][col + i].color.compareTo(color) != 0) {
+                return false;
+            }
+        }
+        // if code still running, no mismatch found
+        return true;
+    }
 }
