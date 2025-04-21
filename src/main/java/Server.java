@@ -115,12 +115,13 @@ public class Server{
 				while(!loggedIn) {
 					try {
 						Message loginAttempt = (Message) in.readObject();
+						MessageServer response = new MessageServer();
 						String attemptedUsername = handleSignOn(loginAttempt);
 						if (attemptedUsername != null) {
 							this.username = attemptedUsername;
 							loggedIn = true;
-							Message accept = Message.accept();
-							out.writeObject(accept);
+							response.signInReturn(0,0,0, new ArrayList<String>(), 0);
+							out.writeObject(response);
 						}
 						else{
 							System.err.println("Invalid Sign On Attempt!");
