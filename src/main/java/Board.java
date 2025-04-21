@@ -55,6 +55,7 @@ public class Board {
     public boolean checkBoard(int row){
         // Find top column in row, must be last added piece.
         int col = 0;
+        boolean winFlag = false;
         while(col < 6 && board[row][col] != null){
             col++;
         }
@@ -62,6 +63,28 @@ public class Board {
         // or [row][col] was null, therefore [row][col - 1] will have the last chip :)
         col--;
         // TODO: Implement Board checking
+        // Vertical checking
+        if(col > 0){
+            int lowVert = col;
+            // Find lowest chip in a potential vertical connection
+            while(lowVert > 0 && board[row][lowVert-1].color.compareTo(board[row][col].color) == 0){
+                lowVert--;
+            }
+            // 2 + 3 = 5 = max col height
+            if(lowVert <= 2){
+                winFlag = verticalCheck(row, lowVert);
+                if(winFlag){
+                    return true;
+                }
+            }
+        }
+        // col == 0
+        else{
+            winFlag = verticalCheck(row, col);
+            if(winFlag){
+                return true;
+            }
+        }
         return false;
     }
 
