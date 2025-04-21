@@ -83,6 +83,7 @@ public class Server{
 			 * Handle signOn request ; Username only variant
 			 * TODO: Implement Username checking on other threads
 			 * @return
+			 * 	Username
 			 */
 			public String handleSignOn(Message msg){
 				if(msg.messageType == 0){

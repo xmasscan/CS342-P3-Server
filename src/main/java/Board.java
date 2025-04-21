@@ -1,0 +1,72 @@
+public class Board {
+    private class Chip{
+        String color;
+        int player;
+
+        Chip(String color, int player){
+            this.color = color;
+            this.player = player;
+        }
+    }
+
+    Chip player1 = new Chip("Red", 0);
+    Chip player2 = new Chip("Yellow", 1);
+    // Should never be that many moves to overflow an int.
+    // Tracks the count of moves in game & determines whose turn it is
+    int moveCount = 0;
+    Chip[][] board = new Chip[7][6];
+
+    // Clears the current board in play for a new round.
+    public void clearBoard(){
+        board = new Chip[7][6];
+        moveCount = 0;
+    }
+
+    public boolean makeMove(int player, int row){
+        // Invalid row handling
+        if(row < 0 || row >= 7){
+            return false;
+        }
+        int col = 0;
+        // Find lowest free cell in current row.
+        while(col < 6 && board[row][col] != null){
+            col++;
+        }
+        // If such a cell is available...
+        if (board[row][col] == null){
+            // player1 logically goes first
+            if(moveCount % 2 == 0){
+                board[row][col] = player1;
+            }
+            else{
+                board[row][col] = player2;
+            }
+            // successful move
+            moveCount++;
+            return true;
+        }
+        // while loop ended bcs col no longer satisfies col < 6.
+        // i.e. row is full, invalid move!
+        return false;
+    }
+
+    // Win states can only be caused by updates to the board.
+    // Therefore, do not check the WHOLE board, just use the last piece as place to begin.
+    public boolean checkBoard(int row){
+        // Find top column in row, must be last added piece.
+        int col = 0;
+        while(col < 6 && board[row][col] != null){
+            col++;
+        }
+        // Either col is at top (violated first case)
+        // or [row][col] was null, therefore [row][col - 1] will have the last chip :)
+        col--;
+        // TODO: Implement Board checking
+        return false;
+    }
+
+    // CHECK BOARD HELPER FUNCTIONS //
+
+    // Vertical Checking
+    // Supply
+}
