@@ -80,8 +80,8 @@ public class Server{
 					
 				 while(true) {
 					    try {
-					    	String data = in.readObject().toString();
-					    	System.out.println("client " + count + ": " + data);
+					    	Message data = (Message) in.readObject();
+					    	System.out.println("client " + count + ":  " + data.handle());
 					    	updateClients("client #"+count+" said: "+data);
 					    	
 					    	}
