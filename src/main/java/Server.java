@@ -1,3 +1,4 @@
+import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
@@ -30,7 +31,7 @@ public class Server{
 		
 			try(ServerSocket mysocket = new ServerSocket(5555);){
 		    System.out.println("Server is waiting for a client!");
-		  
+
 			
 		    while(true) {
 		
@@ -53,6 +54,9 @@ public class Server{
 		
 			Socket connection;
 			int count;
+			String username = "";
+			boolean loggedIn = false;
+
 			ObjectInputStream in;
 			ObjectOutputStream out;
 			
@@ -60,7 +64,36 @@ public class Server{
 				this.connection = s;
 				this.count = count;	
 			}
-			
+
+			/**
+			 * Handles what is expected to be a chat message Message.
+			 * @return
+			 *  The chat message sent as a String.
+			 */
+			public String handleChat(Message msg){
+				if(msg.messageType == 3){
+					return msg.arguments.get(0);
+				}
+				else{
+					return "Invalid Message Returned! Type: " + msg.messageType;
+				}
+			}
+
+			/**
+			 * Handle signOn request ; Username only variant
+			 * TODO: Implement Username checking on other threads
+			 * @return
+			 */
+			public String handleSignOn(Message msg){
+				if(msg.messageType == 0){
+					return msg.arguments.get(0);
+				}
+				else{
+					System.err.println("Invalid Message Returned! Type: " + msg.messageType);
+					return null;
+				}
+			}
+
 			public void updateClients(String message) {
 				//TODO implement
 			}
@@ -77,13 +110,33 @@ public class Server{
 				}
 				
 				updateClients("new client on server: client #"+count);
-					
+
+				while(!loggedIn) {
+					try {
+						Message loginAttempt = (Message) in.readObject();
+						String attemptedUsername = handleSignOn(loginAttempt);
+						if (attemptedUsername != null) {
+							this.username = attemptedUsername;
+							loggedIn = true;
+							Message accept = Message.accept();
+							out.writeObject(accept);
+						}
+						else{
+							System.err.println("Invalid Sign On Attempt!");
+						}
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+				}
+
+				updateClients("Client #"+count + " has logged in. Username: " + username);
+				System.out.println(this.username + " has logged in!");
+
 				 while(true) {
 					    try {
 					    	Message data = (Message) in.readObject();
-					    	System.out.println("client " + count + ":  " + data.handle());
-					    	updateClients("client #"+count+" said: "+data);
-					    	
+					    	System.out.println(this.username + ": " + handleChat(data));
+					    	updateClients(this.username + " said: " + data);
 					    	}
 					    catch(Exception e) {
 					    	System.err.println("OOOOPPs...Something wrong with the socket from client: " + count + "....closing down!");
