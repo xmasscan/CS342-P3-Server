@@ -304,10 +304,7 @@ public class Server{
 							
 						}
 					} catch (Exception e) {
-						e.printStackTrace();
-						System.err.println("OOOOPPs...Something wrong with the socket from client: " + count + "....closing down!");
-					    updateClients("Client #"+count+" has left the server!");
-					    clients.remove(this);
+						this.handleDC();
 					    break;
 					}
 				}
