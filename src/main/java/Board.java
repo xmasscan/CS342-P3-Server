@@ -9,12 +9,22 @@ public class Board {
         }
     }
 
-    Chip player1 = new Chip("Red", 0);
-    Chip player2 = new Chip("Yellow", 1);
+    Chip player1;
+    Chip player2;
     // Should never be that many moves to overflow an int.
     // Tracks the count of moves in game & determines whose turn it is
-    int moveCount = 0;
-    Chip[][] board = new Chip[7][6];
+    int moveCount;
+    Chip[][] board;
+
+    public Board(){
+        // Player/Game Info Init
+        this.player1 = new Chip("Red", 0);
+        this.player2 = new Chip("Yellow", 1);
+        this.moveCount = 0;
+
+        // init new board
+        board = new Chip[7][6];
+    }
 
     // Clears the current board in play for a new round.
     public void clearBoard(){
