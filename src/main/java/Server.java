@@ -262,7 +262,7 @@ public class Server{
 								//Log weird activity; User attempted to log in while signed in
 								}
 							else{
-								server.logEvent("User #" + count + " attempted to interact with server without logging in. Using messag type = " + "" + data.messageType);
+								server.logEvent("User #" + count + " attempted to interact with server without logging in. Using message type = " + data.messageType);
 							}
 						}
 						// Case where user is logged in
