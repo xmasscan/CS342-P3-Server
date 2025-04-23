@@ -85,7 +85,7 @@ public class Server{
 			int count;
 			String username = "";
 			boolean loggedIn = false;
-			Game currentGame;
+			Game currentGame = null;
 
 			ObjectInputStream in;
 			ObjectOutputStream out;
@@ -174,6 +174,29 @@ public class Server{
 						if(game.connect(this))
 						{
 							this.currentGame = game;
+							// Alert user they have been connected
+							try {
+								out.writeObject(ServerMessage.accept());
+							}
+							catch (Exception e) {
+								e.printStackTrace();
+							}
+							server.logEvent("User #" + count + " connected to a game!");
+							System.out.print("Players: ");
+							if(currentGame.player1 != null){
+								System.out.print(currentGame.player1.username);
+							}
+							else{
+								System.out.print("N/A");
+							}
+							System.out.print(" ");
+							if(currentGame.player2 != null){
+								System.out.print(currentGame.player2.username);
+							}
+							else{
+								System.out.print("N/A");
+							}
+							System.out.println();
 							return;
 						}
 						else{
@@ -229,21 +252,35 @@ public class Server{
 					try {
 						Message data = (Message) in.readObject();
 
-						// Sign In Attempt Message
-						if (data.messageType == 0) {
-							if(!loggedIn)
+						// If user is not logged in, only legal message is to attempt to sign in!
+						if (!loggedIn) {
+							if (data.messageType == 0)
 								handleSignOn(data);
-							// Log weird activity; User attempted to log in while signed in
+								// Log weird activity; User attempted to log in while signed in
 							else
-								server.logEvent("User " + this.username + " with internal ID " + this.count + " attempted to sign in while logged in.");
-						}else if (data.messageType == 3) {
-							makeMove();
-//						}else if (data.messageType == 4) {
-//							recieveChat();
-//						}else if (data.messageType == 5) {
-							
-						}else if (data.messageType == 6) {
-							
+								server.logEvent("User #" + count + " attempted to interact with server without logging in.");
+						}
+						// Case where user is logged in
+						else{
+							// Sign On Message whilst logged in
+							if(data.messageType == 0){
+								server.logEvent("User #" + count + " attempted to log in whilst logged in.");
+							}
+							// Handle game connection request
+							else if(data.messageType == 1){
+								// Not already connected to a game case
+								if(currentGame == null){
+									this.findGame();
+								}
+								// Attempting to connect while still connected to a game.
+								else{
+									server.logEvent("User #" + count + " attempted to connect to a game whilst already connected to one.");
+								}
+							}
+							// Chat Message Case
+							else if(data.messageType == 3){
+								handleChat(data);
+							}
 						}
 					} catch (Exception e) {
 						this.handleDC();
