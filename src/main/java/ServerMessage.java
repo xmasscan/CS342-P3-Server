@@ -14,6 +14,7 @@ public class ServerMessage implements Serializable {
      *  1 = reject
      *  2 = update board state
      *  3 = update chat
+     *  4 = end game
      * @param argv
      */
     ServerMessage(int messageType, ArrayList<String> argv) {
@@ -74,6 +75,26 @@ public class ServerMessage implements Serializable {
         ArrayList<String> argv = new ArrayList<>();
         argv.add(username);
         argv.add(message);
+        return new ServerMessage(messageType, argv);
+    }
+
+    /**
+     * endGame
+     * When the game ends, informs each user if they lost or won.
+     * @param isWinner
+     *  Boolean value determining whether the user won.
+     * @return
+     *  A ServerMessage containing a string informing the user if they won or lost.
+     */
+    public static ServerMessage endGame(boolean isWinner){
+        int messageType = 4;
+        ArrayList<String> argv = new ArrayList<>();
+        if(isWinner){
+            argv.add("Winner");
+        }
+        else{
+            argv.add("Loser");
+        }
         return new ServerMessage(messageType, argv);
     }
 }

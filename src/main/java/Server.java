@@ -98,6 +98,7 @@ public class Server{
 			public void handleDC(){
 				server.logEvent("User " + count + " disconnected from the server!");
 				clients.remove(this);
+
 				// Thread no longer needed, kill it
 				this.interrupt();
 			}

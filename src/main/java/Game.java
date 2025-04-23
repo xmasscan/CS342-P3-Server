@@ -73,4 +73,46 @@ public class Game{
         return player2;
     }
 
+    /**
+     * Handles Game Behavior when a player disconnects
+     * @param player
+     *  The player who disconnected
+     */
+    public void handleDC(Server.ClientThread player){
+        // Determine which player DC'd
+        Server.ClientThread other;
+        if(this.player1 == player){
+            this.player1 = null;
+            other = player2;
+        }
+        else{
+            this.player2 = null;
+            other = player1;
+        }
+
+        // Game is over
+        gameOver = true;
+
+        // Check if other player is still connected
+        if(other != null){
+            // Determine who won
+            if(other == player1){
+                winner = 0;
+            }
+            else{
+                winner = 1;
+            }
+            // Attempt to inform winner they won, assuming they still are connected.
+            try {
+                other.out.writeObject(ServerMessage.endGame(true));
+            }
+            catch (Exception e) {
+                // If this fails, other user DC'd, just leave it.
+                winner = -1;
+                return;
+            }
+        }
+
+    }
+
 }
