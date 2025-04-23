@@ -13,7 +13,11 @@ import javafx.scene.control.ListView;
 
 public class Server{
 
+	ArrayList<String> userNameList;
+	ArrayList<Integer> hashedPasswords;
+
 	int count = 1;	
+	int numberOfUsers = 0;
 	ArrayList<ClientThread> clients = new ArrayList<ClientThread>();
 	ArrayList<Game> Games = new ArrayList<Game>();
 	TheServer server;
@@ -21,15 +25,30 @@ public class Server{
 	
 	Server(){
 
+		userNameList = new ArrayList<String>();
+		hashedPasswords = new ArrayList<Integer>();
+
+		String test = new String("adminTest");
+		userNameList.add(test);
+		hashedPasswords.add(test.hashCode());
+
+		fillSavedUsers();
+		
+
 		server = new TheServer();
 		server.start();
 	}
 	
+	//eventually fills the two arrays from either a file or a database figure it out
+	public void fillSavedUsers(){
+
+	}
 	
 	public class TheServer extends Thread{
 		
 		public void run() {
-		
+
+			
 			try(ServerSocket mysocket = new ServerSocket(5555);){
 		    System.out.println("Server is waiting for a client!");
 
@@ -81,21 +100,61 @@ public class Server{
 			}
 
 			/**
-			 * Handle signOn request ; Username only variant
-			 * TODO: Implement Username checking on other threads
-			 * @return
-			 * 	Username
+			 * Handle signOn request; checks message and checks if the user is in the user Array
 			 */
-			public String handleSignOn(Message msg){
+			public void handleSignOn(Message msg){
 				if(msg.messageType == 0){
-					return msg.arguments.get(0);
+					ArrayList<String> info = new ArrayList<String>();
+					info.add(msg.arguments.get(0));
+					info.add(msg.arguments.get(1));
+
+					Boolean userInList = false;
+
+					for (String user : userNameList ) {
+						if (user.equals(username)){
+							userInList = true;
+						}
+					}
+
+					MessageServer response = new MessageServer();
+					if (info.get(0) != null && info.get(1) != null) {
+						
+						if (userInList) {
+							if (hashedPasswords.contains(info.get(1).hashCode())){
+								response.signInReturn(0,0,0, userNameList, numberOfUsers);
+								loggedIn = true;
+								this.username = info.get(0);
+							}
+							response.reply("Incorrect password try again", false);
+						} else {
+							numberOfUsers +=1;
+							this.username = info.get(0);
+							userNameList.add(username);
+							hashedPasswords.add(info.get(1).hashCode());
+							loggedIn = true;
+							response.signInReturn(0,0,0, userNameList, numberOfUsers);
+							
+						}
+					}
+					else{
+						System.err.println("Invalid Sign On Attempt!");
+						response.reply("Incorrect password try again", false);
+					}
+
+					try {
+						out.writeObject(response);
+					} catch (Exception e) {
+						e.printStackTrace();
+						System.err.println("OOOOPPs...Something wrong with the socket from client: " + count + "....closing down!");
+					    updateClients("Client #"+count+" has left the server!");
+					    clients.remove(this);
+					}
 				}
-				else{
-					System.err.println("Invalid Message Returned! Type: " + msg.messageType);
-					return null;
-				}
+
 			}
 
+
+			//what is this supposed to do
 			public void updateClients(String message) {
 				//TODO implement
 			}
@@ -113,41 +172,38 @@ public class Server{
 				
 				updateClients("new client on server: client #"+count);
 
-				while(!loggedIn) {
+				while(true) {
 					try {
-						Message loginAttempt = (Message) in.readObject();
-						MessageServer response = new MessageServer();
-						String attemptedUsername = handleSignOn(loginAttempt);
-						if (attemptedUsername != null) {
-							this.username = attemptedUsername;
-							loggedIn = true;
-							response.signInReturn(0,0,0, new ArrayList<String>(), 0);
-							out.writeObject(response);
-						}
-						else{
-							System.err.println("Invalid Sign On Attempt!");
+						Message data = (Message) in.readObject();
+
+						System.out.println(this.username + ": " + handleChat(data));
+					    updateClients(this.username + " said: " + data);
+
+						if (data.messageType == 0) {
+							handleSignOn(data);
+						} else if (data.messageType == 1) {
+
+						}else if (data.messageType == 2) {
+							
+						}else if (data.messageType == 3) {
+							
+						}else if (data.messageType == 4) {
+							
+						}else if (data.messageType == 5) {
+							
+						}else if (data.messageType == 6) {
+							
 						}
 					} catch (Exception e) {
 						e.printStackTrace();
+						System.err.println("OOOOPPs...Something wrong with the socket from client: " + count + "....closing down!");
+					    updateClients("Client #"+count+" has left the server!");
+					    clients.remove(this);
+					    break;
 					}
 				}
 
-				updateClients("Client #"+count + " has logged in. Username: " + username);
-				System.out.println(this.username + " has logged in!");
 
-				 while(true) {
-					    try {
-					    	Message data = (Message) in.readObject();
-					    	System.out.println(this.username + ": " + handleChat(data));
-					    	updateClients(this.username + " said: " + data);
-					    	}
-					    catch(Exception e) {
-					    	System.err.println("OOOOPPs...Something wrong with the socket from client: " + count + "....closing down!");
-					    	updateClients("Client #"+count+" has left the server!");
-					    	clients.remove(this);
-					    	break;
-					    }
-					}
 				}//end of run
 			
 			
