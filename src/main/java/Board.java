@@ -32,6 +32,32 @@ public class Board {
         moveCount = 0;
     }
 
+    /**
+     * printBoard()
+     * Prints the current board to the Server Terminal
+     * Format:
+     *  [ ][ ][ ][ ]...
+     *  .
+     *  .
+     *  .
+     */
+    public void printBoard(){
+        for(int i = 5; i >= 0; i--){
+            for(int j = 0; j < 6; j++){
+                System.out.print("[");
+                if(board[i][j] == null){
+                    System.out.print(" ");
+                }
+                else{
+                    // Red = R, Yellow = Y, etc.
+                    System.out.print(board[i][j].color.substring(0,1).toUpperCase());
+                }
+                System.out.print("]");
+            }
+            System.out.println();
+        }
+    }
+
     public boolean makeMove(int player, int row){
         // Invalid row handling
         if(row < 0 || row >= 7){
