@@ -215,7 +215,7 @@ public class Server{
 
 
 			//check to see if move is valid, make a status update, update move on other cleints side
-			public void makeMove(){
+			public void makeMove(String msg){
 
 			}
 
@@ -276,6 +276,9 @@ public class Server{
 								else{
 									server.logEvent("User #" + count + " attempted to connect to a game whilst already connected to one.");
 								}
+							}
+							else if (data.messageType == 2) {
+								makeMove("figure it out");
 							}
 							// Chat Message Case
 							else if(data.messageType == 3){
