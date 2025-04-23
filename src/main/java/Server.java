@@ -6,6 +6,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.function.Consumer;
+import java.util.Date;
 
 import javafx.application.Platform;
 import javafx.scene.control.ListView;
@@ -31,33 +32,26 @@ public class Server{
 		hashedPasswords = new ArrayList<Integer>();
 		gamesWaitingForPlayers = new ArrayList<Game>();
 		Games = new ArrayList<Game>();
-
 		numberOfGames = 0;
 
-		String test = new String("adminTest");
-		userNameList.add(test);
-		hashedPasswords.add(test.hashCode());
-
-		fillSavedUsers();
-		
+//		fillSavedUsers();
 
 		server = new TheServer();
 		server.start();
 	}
 	
 	//eventually fills the two arrays from either a file or a database figure it out
-	public void fillSavedUsers(){
-
-	}
+	// Yeah we are not doing this, we have two days.
+//	public void fillSavedUsers(){
+//
+//	}
 	
 	public class TheServer extends Thread{
 		
 		public void run() {
 
-			
 			try(ServerSocket mysocket = new ServerSocket(5555);){
 		    System.out.println("Server is waiting for a client!");
-
 			
 		    while(true) {
 		
@@ -71,8 +65,18 @@ public class Server{
 			} catch(Exception e) {
 					System.err.println("Server did not launch");
 				}
-			}
 		}
+
+		/**
+		 * Logs Notable Events ; Server Log Building
+		 * @param message
+		 * 	The message to log into the server log.
+		 */
+		public void logEvent(String message){
+			Date currentTime = new Date();
+			System.out.println(currentTime + ": " + message);
+		}
+	}
 	
 
 		class ClientThread extends Thread{
@@ -289,11 +293,16 @@ public class Server{
 					try {
 						Message data = (Message) in.readObject();
 
-						System.out.println(this.username + ": " + handleChat(data));
-					    updateClients(this.username + " said: " + data);
+//						System.out.println(this.username + ": " + handleChat(data));
+//					    updateClients(this.username + " said: " + data);
 
+						// Sign In Attempt Message
 						if (data.messageType == 0) {
-							handleSignOn(data);
+							if(!loggedIn)
+								handleSignOn(data);
+							// Log weird activity; User attempted to log in while signed in
+							else
+								server.logEvent("User " + this.username + " with internal ID " + this.count + " attempted to sign in while logged in.");
 						} else if (data.messageType == 1) {
 							findGame();
 						}else if (data.messageType == 2) {
