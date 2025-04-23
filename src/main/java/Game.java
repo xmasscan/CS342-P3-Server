@@ -7,15 +7,29 @@ public class Game {
     ArrayList<String> users;
 
     Integer typeOfGame;
+    //1 for against another player
+    //2 for ai
+
     Integer  whoWon;
+    //states who won
 
     //hold board information
-    ArrayList<ArrayList<Integer>> Board;
+    Board gameBoard;
     Integer numColloms, numRows;
     String gameID;
 
-    Game(){
-        
+    Game(int count){
+        users = new ArrayList<String>();
+        gameBoard = new Board();
+        typeOfGame = 0;
+        whoWon = -1;
+        numColloms = 6;
+        numRows = 7;
+        gameID = "" + count;
+    }
+
+    ArrayList<ArrayList<Integer>> representBoard(){
+        return new ArrayList<ArrayList<Integer>>();
     }
 
     void updateBoard(){

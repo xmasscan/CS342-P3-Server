@@ -89,7 +89,7 @@ public class Message implements Serializable {
      *  Game Connection Request Message
      */
     public static Message connect(int gameID){
-        int messageType = 1;
+        int messageType = 2;
         ArrayList<String> argv = new ArrayList<>();
         argv.add(Integer.toString(gameID));
         return new Message(messageType, argv);
@@ -103,7 +103,7 @@ public class Message implements Serializable {
      *  Move attempt Message
      */
     public static Message move(int row){
-        int messageType = 2;
+        int messageType = 3;
         ArrayList<String> argv = new ArrayList<>();
         argv.add(Integer.toString(row));
         return new Message(messageType, argv);
@@ -116,7 +116,7 @@ public class Message implements Serializable {
      */
     public static Message chat(String message, String userID){
         // ID Message as a "Chat Message" message
-        int messageType = 3;
+        int messageType = 4;
         if (userID.isEmpty()) {
             userID = new String("null");
         }
