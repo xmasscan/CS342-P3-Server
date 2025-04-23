@@ -143,6 +143,8 @@ public class Server{
 					// Code still running == Username is unique, allow it & update information thusly
 					this.loggedIn = true;
 					this.username = username;
+					// Log Username for checks against others, ability to print users, etc.
+					userNameList.add(username);
 					server.logEvent("User #" + count + " signed up with username: " + username);
 					try{
 						out.writeObject(ServerMessage.accept());
