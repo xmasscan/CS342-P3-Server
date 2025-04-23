@@ -254,11 +254,13 @@ public class Server{
 
 						// If user is not logged in, only legal message is to attempt to sign in!
 						if (!loggedIn) {
-							if (data.messageType == 0)
+							if (data.messageType == 0) {
 								handleSignOn(data);
-								// Log weird activity; User attempted to log in while signed in
-							else
-								server.logEvent("User #" + count + " attempted to interact with server without logging in.");
+								//Log weird activity; User attempted to log in while signed in
+								}
+							else{
+								server.logEvent("User #" + count + " attempted to interact with server without logging in. Using messag type = " + "" + data.messageType);
+							}
 						}
 						// Case where user is logged in
 						else{
@@ -286,6 +288,7 @@ public class Server{
 							}
 						}
 					} catch (Exception e) {
+						e.printStackTrace();
 						this.handleDC();
 					    break;
 					}

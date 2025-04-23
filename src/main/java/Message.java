@@ -77,10 +77,13 @@ public class Message implements Serializable {
      */
     public static Message connect()  {
         int messageType = 1;
-        return new Message(messageType, null);
+        ArrayList<String> argv = new ArrayList<>();
+        argv.add("CONNECT");
+        return new Message(messageType, argv);
     }
 
     /**
+     * DEPRECATED
      * Sends a connection request to the Connect4 server.
      * Specfic match variant; User attempts to connect to a specfic game based on its ID.
      * @param gameID
@@ -89,7 +92,7 @@ public class Message implements Serializable {
      *  Game Connection Request Message
      */
     public static Message connect(int gameID){
-        int messageType = 2;
+        int messageType = 1;
         ArrayList<String> argv = new ArrayList<>();
         argv.add(Integer.toString(gameID));
         return new Message(messageType, argv);
@@ -103,7 +106,7 @@ public class Message implements Serializable {
      *  Move attempt Message
      */
     public static Message move(int row){
-        int messageType = 3;
+        int messageType = 2;
         ArrayList<String> argv = new ArrayList<>();
         argv.add(Integer.toString(row));
         return new Message(messageType, argv);
@@ -114,19 +117,14 @@ public class Message implements Serializable {
      * @param message
      *  The chat message for the user to send to the server.
      */
-    public static Message chat(String message, String userID){
+    public static Message chat(String message){
         // ID Message as a "Chat Message" message
-        int messageType = 4;
-        if (userID.isEmpty()) {
-            userID = new String("null");
-        }
-
+        int messageType = 3;
 
         // Build arguments; Only need to send chat message!
         ArrayList<String> argv = new ArrayList<>();
         argv.add(message);
-        argv.add(userID);
-        // Create Message Object wtih desired contents
+        // Create Message Object with desired contents
         return new Message(messageType, argv);
     }
 
