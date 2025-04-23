@@ -262,8 +262,20 @@ public class Server{
 
 			}
 
-			public void recieveChat(){
+			public void recieveChat(Message msg){
+				if(msg.messageType == 4){
+					// Chat Message Argv:
+					// index 0: message
+					String chatMessage = msg.arguments.get(0);
 
+					// TODO: filters or whatever you want to validate messages here later
+
+					// Code still running == message is allowed to go through
+					// TODO: Send chat message to server
+				}
+				else{
+					server.logEvent("Attempted to handle Chat Message, instead got message of type " + msg.messageType);
+				}
 			}
 			
 			public void run(){
