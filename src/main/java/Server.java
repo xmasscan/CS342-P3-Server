@@ -16,25 +16,19 @@ public class Server{
 
 	ArrayList<String> userNameList;
 	ArrayList<Integer> hashedPasswords;
-	ArrayList<Game> gamesWaitingForPlayers;
 
-	int count = 1;	
-	int numberOfUsers = 0;
+	int count = 1;
 	ArrayList<ClientThread> clients = new ArrayList<ClientThread>();
-	ArrayList<Game> Games;
 	TheServer server;
-	Integer numberOfGames;
-	
+	ArrayList<Game> games;
+	int numGames;
 	
 	Server(){
-
+		// Init relevant data
 		userNameList = new ArrayList<String>();
 		hashedPasswords = new ArrayList<Integer>();
-		gamesWaitingForPlayers = new ArrayList<Game>();
-		Games = new ArrayList<Game>();
-		numberOfGames = 0;
-
-//		fillSavedUsers();
+		games = new ArrayList<Game>();
+		numGames = 0;
 
 		server = new TheServer();
 		server.start();
@@ -58,9 +52,7 @@ public class Server{
 				ClientThread c = new ClientThread(mysocket.accept(), count);
 				clients.add(c);
 				c.start();
-				
 				count++;
-				
 			    }
 			} catch(Exception e) {
 					System.err.println("Server did not launch");
@@ -76,17 +68,24 @@ public class Server{
 			Date currentTime = new Date();
 			System.out.println(currentTime + ": " + message);
 		}
+
+		/**
+		 * startGame()
+		 * Makes a new, publicly accessible game.
+		 */
+		public void startGame(){
+			Game game = new Game();
+			games.add(game);
+		}
 	}
-	
 
 		class ClientThread extends Thread{
-			
-		
+
 			Socket connection;
 			int count;
 			String username = "";
 			boolean loggedIn = false;
-			Game associatedGame;
+			Game currentGame;
 
 			ObjectInputStream in;
 			ObjectOutputStream out;
@@ -97,9 +96,8 @@ public class Server{
 			}
 
 			public void handleDC(){
-				server.logEvent("User " + count + " unexpectedly disconnected from the server!");
+				server.logEvent("User " + count + " disconnected from the server!");
 				clients.remove(this);
-				server.logEvent("User removed from current records, closing thread.");
 				// Thread no longer needed, kill it
 				this.interrupt();
 			}
@@ -164,96 +162,32 @@ public class Server{
 			}
 
 
+			/**
+			 * Find an empty game, then connect.
+			 * If no empty game found, have server create new game, then attempt connection again
+			 */
 			public void findGame(){
-				if (gamesWaitingForPlayers.isEmpty()) {
-					Game currGame = new Game(numberOfGames);
-					numberOfGames +=1;
-					currGame.users.add(username);
-					gamesWaitingForPlayers.add(currGame);
-				}else {
-					Game currGame = gamesWaitingForPlayers.remove(0);
-					currGame.users.add(username);
-					Games.add(currGame);
-
-					MessageServer response = new MessageServer();
-	
-
-					int clientIn = -1;
-					for (ClientThread client : clients) {
-						if (client.username.equals(currGame.users.get(0))){
-							response.setUpGame(currGame.gameID,currGame.representBoard(),6,7,new ArrayList<String>(), 0, 0);
-							clientIn = 0;
-
-						} else if (client.username.equals(currGame.users.get(1))){
-							response.setUpGame(currGame.gameID,currGame.representBoard(),6,7,new ArrayList<String>(), 0, 1);
-							clientIn = 1;
+				for(Game game : games){
+					// If game is not full
+					// i.e. if Game is able to be connected to...
+					if(!(game.isFull())){
+						if(game.connect(this))
+						{
+							this.currentGame = game;
+							return;
 						}
-
-						try {
-						if (clientIn != -1) {
-							out.writeObject(response);
-							client.associatedGame = currGame;
-						}
-						} catch (Exception e) {
-							e.printStackTrace();
-							if (clientIn == 0) {
-								findGame();
-							} else {
-								client.findGame();
-							}
+						else{
+							server.logEvent("User #" + count + " attmpted to connect to a full game.");
 						}
 					}
-
-
-
-					
 				}
-			}
-
-			//change to connect to a specific game
-			//needs to check the game array and the games that are trying to load
-			public void connectToGame(int id) {
-				if (gamesWaitingForPlayers.isEmpty()) {
-					Game currGame = new Game(numberOfGames);
-					numberOfGames +=1;
-					currGame.users.add(username);
-					gamesWaitingForPlayers.add(currGame);
-				}else {
-					Game currGame = gamesWaitingForPlayers.remove(0);
-					currGame.users.add(username);
-					Games.add(currGame);
-
-
-					
-					MessageServer response = new MessageServer();
-	
-
-					int clientIn = -1;
-					for (ClientThread client : clients) {
-						if (client.username.equals(currGame.users.get(0))){
-							response.setUpGame(currGame.gameID,currGame.representBoard(),6,7,new ArrayList<String>(), 0, 0);
-							clientIn = 0;
-
-						} else if (client.username.equals(currGame.users.get(1))){
-							response.setUpGame(currGame.gameID,currGame.representBoard(),6,7,new ArrayList<String>(), 0, 1);
-							clientIn = 1;
-						}
-
-						try {
-							if (clientIn != -1) {
-							out.writeObject(response);}
-						} catch (Exception e) {
-							e.printStackTrace();
-							if (clientIn == 0) {
-								findGame();
-							} else {
-								client.findGame();
-							}
-						}
-					}
-					
-				}
-
+				// Code still running == all games were full
+				// Create a new game & add it to list
+				server.startGame();
+				// Now there is an empty game, connect!
+				// Use this method again bcs another client could TECHNICALLY
+				// connect between creation and us attempting to connect bcs of multithreading
+				this.findGame();
 			}
 
 
@@ -302,15 +236,11 @@ public class Server{
 							// Log weird activity; User attempted to log in while signed in
 							else
 								server.logEvent("User " + this.username + " with internal ID " + this.count + " attempted to sign in while logged in.");
-						} else if (data.messageType == 1) {
-							findGame();
-						}else if (data.messageType == 2) {
-							connectToGame(Integer.parseInt(data.arguments.get(0)));
 						}else if (data.messageType == 3) {
 							makeMove();
-						}else if (data.messageType == 4) {
-							recieveChat();
-						}else if (data.messageType == 5) {
+//						}else if (data.messageType == 4) {
+//							recieveChat();
+//						}else if (data.messageType == 5) {
 							
 						}else if (data.messageType == 6) {
 							

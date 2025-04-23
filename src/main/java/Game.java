@@ -1,47 +1,76 @@
 import java.util.ArrayList;
 
-//contains the information of a current game
-public class Game {
+// Manages players in a game of Connect 4 & the board they are playing on.
+public class Game{
 
-    //holds the userid of the game players
-    ArrayList<String> users;
+    // Save the threads of the players
+    Server.ClientThread player1 = null;
+    Server.ClientThread player2 = null;
 
-    Integer typeOfGame;
-    //1 for against another player
-    //2 for ai
-
-    Integer  whoWon;
-    //states who won
+    // Game state; If the game has been won and who won
+    int winner = -1;
+    boolean gameOver = false;
 
     //hold board information
     Board gameBoard;
-    Integer numColloms, numRows;
-    String gameID;
+    int currentMove;
 
-    Game(int count){
-        users = new ArrayList<String>();
-        gameBoard = new Board();
-        typeOfGame = 0;
-        whoWon = -1;
-        numColloms = 6;
-        numRows = 7;
-        gameID = "" + count;
+    /**
+     * Game Constructor
+     * Called by Server, creates a new game for users to connect to!
+     */
+    public Game(){
+        // Initialize new Connect 4 Board
+        this.gameBoard = new Board();
+        // No moves made yet!
+        this.currentMove = 0;
     }
 
-    ArrayList<ArrayList<Integer>> representBoard(){
-        return new ArrayList<ArrayList<Integer>>();
+    /**
+     * Attempt to connect a user to this game of Connect 4!
+     * @param player
+     *  The ClientThread to allow to participate
+     * @return
+     *  whether the connection was successful
+     */
+    public boolean connect(Server.ClientThread player){
+        // If the first player slot is open, set this player as the first player.
+        if(this.player1 == null){
+            this.player1 = player;
+            return true;
+        }
+        // If the second player slot is open, set this player as the first player.
+        else if(this.player2 == null){
+            this.player2 = player;
+            return true;
+        }
+        // Game is full! You can't connect!
+        else{
+            return false;
+        }
     }
 
-    void updateBoard(){
-
+    /**
+     * isFull
+     * @return
+     *  True if the current game is full, false if it is not
+     */
+    public boolean isFull(){
+        // If either slot is empty, the game is not full, otherwise it must be
+        return(!(this.player1 == null || this.player2 == null));
     }
-    
-    
-    //checks who won
-    Integer whoWon(){
-        return new Integer(0);
-    }
-    
 
-    
+    /**
+     * getTurn
+     * Figures out which player's turn it is
+     * @return
+     *  The ClientThread coorelating to the player whose turn it currently is.
+     */
+    public Server.ClientThread getTurn(){
+        if(currentMove % 2 == 0){
+            return player1;
+        }
+        return player2;
+    }
+
 }
