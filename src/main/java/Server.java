@@ -96,6 +96,14 @@ public class Server{
 				this.count = count;	
 			}
 
+			public void handleDC(){
+				server.logEvent("User " + count + " unexpectedly disconnected from the server!");
+				clients.remove(this);
+				server.logEvent("User removed from current records, closing thread.");
+				// Thread no longer needed, kill it
+				this.interrupt();
+			}
+
 			/**
 			 * Handles what is expected to be a chat message Message.
 			 * @return
@@ -115,53 +123,38 @@ public class Server{
 			 */
 			public void handleSignOn(Message msg){
 				if(msg.messageType == 0){
-					ArrayList<String> info = new ArrayList<String>();
-					info.add(msg.arguments.get(0));
-					info.add(msg.arguments.get(1));
+					// arguments = {username}
+					String username = msg.arguments.get(0);
 
-					Boolean userInList = false;
-
+					// Iterate through all usernames, return error if current username is duplicate.
 					for (String user : userNameList ) {
-						if (user.equals(username)){
-							userInList = true;
-						}
-					}
-
-					MessageServer response = new MessageServer();
-					if (info.get(0) != null && info.get(1) != null) {
-						
-						if (userInList) {
-							if (hashedPasswords.contains(info.get(1).hashCode())){
-								response.signInReturn(0,0,0, userNameList, numberOfUsers);
-								loggedIn = true;
-								this.username = info.get(0);
+                        if (user.equals(username)) {
+							// If username was a duplicate, reject!
+							try {
+								server.logEvent("User #" + count + " attempted to sign in with duplicate username: " + username);
+								out.writeObject(ServerMessage.reject());
 							}
-							response.reply("Incorrect password try again", false);
-						} else {
-							numberOfUsers +=1;
-							this.username = info.get(0);
-							userNameList.add(username);
-							hashedPasswords.add(info.get(1).hashCode());
-							loggedIn = true;
-							response.signInReturn(0,0,0, userNameList, numberOfUsers);
-							
-						}
-					}
-					else{
-						System.err.println("Invalid Sign On Attempt!");
-						response.reply("Incorrect password try again", false);
+							catch (Exception e) {
+								e.printStackTrace();
+								this.handleDC();
+							}
+							return;
+                        }
 					}
 
-					try {
-						out.writeObject(response);
-					} catch (Exception e) {
+					// Code still running == Username is unique, allow it & update information thusly
+					this.loggedIn = true;
+					this.username = username;
+					server.logEvent("User #" + count + " signed up with username: " + username);
+					try{
+						out.writeObject(ServerMessage.accept());
+						return;
+					} catch (Exception e){
 						e.printStackTrace();
-						System.err.println("OOOOPPs...Something wrong with the socket from client: " + count + "....closing down!");
-					    updateClients("Client #"+count+" has left the server!");
-					    clients.remove(this);
+						this.handleDC();
 					}
 				}
-
+				server.logEvent("Invalid Message. Attempted to handle SignOn, instead got message of type " + msg.messageType);
 			}
 
 
@@ -182,9 +175,6 @@ public class Server{
 					currGame.users.add(username);
 					Games.add(currGame);
 
-
-
-					
 					MessageServer response = new MessageServer();
 	
 
@@ -287,14 +277,11 @@ public class Server{
 					System.out.println("Streams not open");
 				}
 				
-				updateClients("new client on server: client #"+count);
+				server.logEvent("New client on server! Client #"+count);
 
 				while(true) {
 					try {
 						Message data = (Message) in.readObject();
-
-//						System.out.println(this.username + ": " + handleChat(data));
-//					    updateClients(this.username + " said: " + data);
 
 						// Sign In Attempt Message
 						if (data.messageType == 0) {
