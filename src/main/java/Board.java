@@ -134,7 +134,7 @@ public class Board {
         String color = player.color;
         // check 3 above columns
         for(int i = 1; i < 4; i++) {
-            if (board[row][col + i].color.compareTo(color) != 0) {
+            if (board[row][col + i] == null || board[row][col + i].color.compareTo(color) != 0) {
                 return false;
             }
         }
