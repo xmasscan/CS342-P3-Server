@@ -35,6 +35,7 @@ public class Game{
      */
     public boolean connect(Server.ClientThread player){
         // If the first player slot is open, set this player as the first player.
+
         if(this.player1 == null){
             this.player1 = player;
             return true;

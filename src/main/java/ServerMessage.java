@@ -2,6 +2,8 @@ import java.io.Serializable;
 import java.util.ArrayList;
 
 public class ServerMessage implements Serializable {
+    static final long serialVersionUID = 42L;
+
     int messageType;
     ArrayList<String> argv;
 
