@@ -183,8 +183,8 @@ public class Server{
 							this.currentGame = game;
 							// Alert user they have been connected
 							try {
-								out.writeObject(ServerMessage.inMatch("", numGames));
-								game.player1.out.writeObject(ServerMessage.inMatch("", numGames));
+								game.player2.out.writeObject(ServerMessage.inMatch(game.player1.username, numGames));
+								game.player1.out.writeObject(ServerMessage.inMatch(game.player2.username, numGames));
 							}
 							catch (Exception e) {
 								e.printStackTrace();
