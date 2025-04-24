@@ -1,3 +1,4 @@
+import java.io.IOException;
 import java.util.ArrayList;
 
 // Manages players in a game of Connect 4 & the board they are playing on.
@@ -43,6 +44,15 @@ public class Game{
         // If the second player slot is open, set this player as the first player.
         else if(this.player2 == null){
             this.player2 = player;
+            // This code running = there exists a player1 & player2 => they are both in a match
+            // Alert both players they are in a match!
+            try{
+                player1.out.writeObject(ServerMessage.inMatch(0));
+                player2.out.writeObject(ServerMessage.inMatch(1));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
             return true;
         }
         // Game is full! You can't connect!
