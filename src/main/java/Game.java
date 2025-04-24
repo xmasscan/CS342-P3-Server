@@ -26,6 +26,37 @@ public class Game{
         // No moves made yet!
         this.currentMove = 0;
     }
+    
+    public boolean makeMove(String user, int collumn) {
+        int player = 2;
+        if (player1.username == user) {
+            player =1;
+        }
+        boolean returns = gameBoard.makeMove(player, collumn);
+        if (gameBoard.checkBoard(collumn)) {
+            try {
+                if (currentMove %2 == 0) {
+
+                    player1.out.writeObject(ServerMessage.endGame(true));
+                    player2.out.writeObject(ServerMessage.endGame(false));
+                }
+                else {
+                    player2.out.writeObject(ServerMessage.endGame(true));
+                    player1.out.writeObject(ServerMessage.endGame(false));
+                }
+                
+            } catch (Exception e) {
+                // TODO: handle exception
+            }
+
+            currentMove+=1;
+            
+            
+        }
+
+
+        return returns;
+    }
 
     /**
      * Attempt to connect a user to this game of Connect 4!

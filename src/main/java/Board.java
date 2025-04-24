@@ -58,24 +58,24 @@ public class Board {
         }
     }
 
-    public boolean makeMove(int player, int row){
+    public boolean makeMove(int player, int collomn){
         // Invalid row handling
-        if(row < 0 || row >= 7){
+        if(collomn < 0 || collomn >= 7){
             return false;
         }
-        int col = 0;
+        int row = 0;
         // Find lowest free cell in current row.
-        while(col < 6 && board[row][col] != null){
-            col++;
+        while(row < 7 && board[row][collomn] != null){
+            row++;
         }
         // If such a cell is available...
-        if (board[row][col] == null){
+        if (board[row][collomn] == null){
             // player1 logically goes first
             if(moveCount % 2 == 0){
-                board[row][col] = player1;
+                board[row][collomn] = player1;
             }
             else{
-                board[row][col] = player2;
+                board[row][collomn] = player2;
             }
             // successful move
             moveCount++;
@@ -88,27 +88,27 @@ public class Board {
 
     // Win states can only be caused by updates to the board.
     // Therefore, do not check the WHOLE board, just use the last piece as place to begin.
-    public boolean checkBoard(int row){
+    public boolean checkBoard(int collom){
         // Find top column in row, must be last added piece.
-        int col = 0;
+        int row = 0;
         boolean winFlag = false;
-        while(col < 6 && board[row][col] != null){
-            col++;
+        while(row < 7 && board[row][collom] != null){
+            row++;
         }
         // Either col is at top (violated first case)
         // or [row][col] was null, therefore [row][col - 1] will have the last chip :)
-        col--;
+        row--;
         // TODO: Implement Board checking
         // Vertical checking
-        if(col > 0){
-            int lowVert = col;
+        if(row > 0){
+            int lowVert = collom;
             // Find lowest chip in a potential vertical connection
-            while(lowVert > 0 && board[row][lowVert-1].color.compareTo(board[row][col].color) == 0){
+            while(lowVert > 0 && board[lowVert][collom].color.compareTo(board[lowVert][collom].color) == 0){
                 lowVert--;
             }
             // 2 + 3 = 5 = max col height
             if(lowVert <= 2){
-                winFlag = verticalCheck(row, lowVert);
+                winFlag = verticalCheck(lowVert, collom);
                 if(winFlag){
                     return true;
                 }
@@ -116,7 +116,7 @@ public class Board {
         }
         // col == 0
         else{
-            winFlag = verticalCheck(row, col);
+            winFlag = verticalCheck(row, collom);
             if(winFlag){
                 return true;
             }

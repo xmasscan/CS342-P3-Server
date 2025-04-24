@@ -222,7 +222,8 @@ public class Server{
 
 
 			//check to see if move is valid, make a status update, update move on other cleints side
-			public void makeMove(String msg){
+			public void makeMove(Message msg){
+				this.currentGame.makeMove(username,Integer.parseInt(msg.arguments.get(0)));
 
 			}
 
@@ -288,7 +289,7 @@ public class Server{
 								}
 							}
 							else if (data.messageType == 2) {
-								makeMove("figure it out");
+								makeMove(data);
 							}
 							// Chat Message Case
 							else if(data.messageType == 3){
