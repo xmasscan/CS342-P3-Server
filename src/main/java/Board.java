@@ -58,24 +58,24 @@ public class Board {
         }
     }
 
-    public boolean makeMove(int player, int collomn){
+    public boolean makeMove(int player, int column){
         // Invalid row handling
-        if(collomn < 0 || collomn >= 7){
+        if(column < 0 || column >= 7){
             return false;
         }
         int row = 0;
         // Find lowest free cell in current row.
-        while(row < 7 && board[row][collomn] != null){
+        while(row < 7 && board[row][column] != null){
             row++;
         }
         // If such a cell is available...
-        if (board[row][collomn] == null){
+        if (board[row][column] == null){
             // player1 logically goes first
             if(moveCount % 2 == 0){
-                board[row][collomn] = player1;
+                board[row][column] = player1;
             }
             else{
-                board[row][collomn] = player2;
+                board[row][column] = player2;
             }
             // successful move
             moveCount++;

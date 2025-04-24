@@ -27,13 +27,13 @@ public class Game{
         this.currentMove = 0;
     }
     
-    public boolean makeMove(String user, int collumn) {
+    public boolean makeMove(String user, int row) {
         int player = 2;
         if (player1.username == user) {
             player =1;
         }
-        boolean returns = gameBoard.makeMove(player, collumn);
-        if (gameBoard.checkBoard(collumn)) {
+        boolean returns = gameBoard.makeMove(player, row);
+        if (gameBoard.checkBoard(row)) {
             try {
                 if (currentMove %2 == 0) {
 
