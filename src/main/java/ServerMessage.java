@@ -98,7 +98,7 @@ public class ServerMessage implements Serializable {
     }
 
     public static ServerMessage updateInformation(String username, Integer gold, Integer elo, Integer visual) {
-        int messageType = 3;
+        int messageType = 5;
         ArrayList<String> argv = new ArrayList<>();
         argv.add(username);
         argv.add(gold.toString());
