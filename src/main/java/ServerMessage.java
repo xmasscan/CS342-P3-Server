@@ -16,7 +16,6 @@ public class ServerMessage implements Serializable {
      *  1 = reject
      *  2 = update board state
      *  3 = update chat
-     *  4 = end game
      * @param argv
      */
     ServerMessage(int messageType, ArrayList<String> argv) {
@@ -97,6 +96,16 @@ public class ServerMessage implements Serializable {
         else{
             argv.add("Loser");
         }
+        return new ServerMessage(messageType, argv);
+    }
+
+    public static ServerMessage updateInformation(String username, Integer gold, Integer elo, Integer visual) {
+        int messageType = 5;
+        ArrayList<String> argv = new ArrayList<>();
+        argv.add(username);
+        argv.add(gold.toString());
+        argv.add(elo.toString());
+        argv.add(visual.toString());
         return new ServerMessage(messageType, argv);
     }
 }
