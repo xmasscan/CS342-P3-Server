@@ -181,6 +181,15 @@ public class Server{
 						if(game.connect(this))
 						{
 							this.currentGame = game;
+							try {
+								if(currentGame.isFull()) {
+									game.player2.out.writeObject(ServerMessage.inMatch(1));
+									game.player1.out.writeObject(ServerMessage.inMatch(0));
+								}
+							}
+							catch (Exception e) {
+								e.printStackTrace();
+							}
 							server.logEvent("User #" + count + " connected to a game!");
 							System.out.print("Players: ");
 							if(currentGame.player1 != null){
