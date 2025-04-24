@@ -73,9 +73,11 @@ public class Server{
 		 * startGame()
 		 * Makes a new, publicly accessible game.
 		 */
-		public void startGame(){
+		public void startGame(ClientThread client){
 			Game game = new Game();
 			games.add(game);
+			game.connect(client);
+			client.currentGame = game;
 		}
 	}
 
@@ -181,7 +183,8 @@ public class Server{
 							this.currentGame = game;
 							// Alert user they have been connected
 							try {
-								out.writeObject(ServerMessage.accept());
+								out.writeObject(ServerMessage.inMatch("", numGames));
+								game.player1.out.writeObject(ServerMessage.inMatch("", numGames));
 							}
 							catch (Exception e) {
 								e.printStackTrace();
@@ -189,6 +192,7 @@ public class Server{
 							server.logEvent("User #" + count + " connected to a game!");
 							System.out.print("Players: ");
 							if(currentGame.player1 != null){
+
 								System.out.print(currentGame.player1.username);
 							}
 							else{
@@ -211,11 +215,8 @@ public class Server{
 				}
 				// Code still running == all games were full
 				// Create a new game & add it to list
-				server.startGame();
-				// Now there is an empty game, connect!
-				// Use this method again bcs another client could TECHNICALLY
-				// connect between creation and us attempting to connect bcs of multithreading
-				this.findGame();
+				server.startGame(this);
+				
 			}
 
 
