@@ -278,6 +278,7 @@ public class Server{
 							else if(data.messageType == 1){
 								// Not already connected to a game case
 								if(currentGame == null){
+									out.writeObject(ServerMessage.accept());
 									this.findGame();
 								}
 								// Attempting to connect while still connected to a game.
