@@ -36,15 +36,6 @@ public class ServerMessage implements Serializable {
         return new ServerMessage(messageType, argv);
     }
 
-    //if oroder = 0  the player receiving goes first
-    public static ServerMessage inMatch(String otherUser, int order){
-        int messageType = 6;
-        ArrayList<String> argv = new ArrayList<String>();
-        argv.add(otherUser);
-        argv.add("" + order);
-        return new ServerMessage(messageType, argv);
-    }
-
     /**
      * Reject Message
      * @return
@@ -116,6 +107,25 @@ public class ServerMessage implements Serializable {
         argv.add(gold.toString());
         argv.add(elo.toString());
         argv.add(visual.toString());
+        return new ServerMessage(messageType, argv);
+    }
+
+    /**
+     * inMatch
+     * Alerts the user that the current game they are in has been populated and begun.
+     * Informs user if they go first or second.
+     * @param order
+     *  0 = First
+     *  1 = Second
+     * @return
+     *  A ServerMessage informing the user what their turn is.
+     */
+    public static ServerMessage inMatch(int order){
+        int messageType = 6;
+        ArrayList<String> argv = new ArrayList<String>();
+        // Cast order to an Integer object, then invoke toString on it
+        // conversion from int to string
+        argv.add(((Integer) order).toString());
         return new ServerMessage(messageType, argv);
     }
 }
