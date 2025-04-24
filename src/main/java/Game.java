@@ -27,12 +27,7 @@ public class Game{
         this.currentMove = 0;
     }
     
-    public boolean makeMove(String user, int row) {
-        int player = 2;
-        if (player1.username == user) {
-            player =1;
-        }
-        boolean returns = gameBoard.makeMove(player, row);
+    public boolean makeMove(int player, int row) {
         if (gameBoard.checkBoard(row)) {
             try {
                 if (currentMove %2 == 0) {
@@ -53,9 +48,7 @@ public class Game{
             
             
         }
-
-
-        return returns;
+        return false;
     }
 
     /**
