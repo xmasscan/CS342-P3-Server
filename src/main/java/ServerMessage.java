@@ -4,6 +4,7 @@ import java.util.ArrayList;
 public class ServerMessage implements Serializable {
     static final long serialVersionUID = 42L;
 
+
     int messageType;
     ArrayList<String> argv;
 
@@ -32,6 +33,15 @@ public class ServerMessage implements Serializable {
         int messageType = 0;
         ArrayList<String> argv = new ArrayList<>();
         argv.add("OK");
+        return new ServerMessage(messageType, argv);
+    }
+
+    //if oroder = 0  the player receiving goes first
+    public static ServerMessage inMatch(String otherUser, int order){
+        int messageType = 6;
+        ArrayList<String> argv = new ArrayList<String>();
+        argv.add(otherUser);
+        argv.add("" + order);
         return new ServerMessage(messageType, argv);
     }
 
