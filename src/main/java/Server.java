@@ -45,18 +45,19 @@ public class Server{
 		public void run() {
 
 			try(ServerSocket mysocket = new ServerSocket(5555);){
-		    System.out.println("Server is waiting for a client!");
+				System.out.println("Server is waiting for a client!");
+				
+				while(true) {
 			
-		    while(true) {
-		
-				ClientThread c = new ClientThread(mysocket.accept(), count);
-				clients.add(c);
-				c.start();
-				count++;
-			    }
+					ClientThread c = new ClientThread(mysocket.accept(), count);
+					clients.add(c);
+					c.start();
+					count++;
+					}
 			} catch(Exception e) {
 					System.err.println("Server did not launch");
-				}
+					e.printStackTrace();
+			}
 		}
 
 		/**
@@ -152,7 +153,7 @@ public class Server{
 					userNameList.add(username);
 					server.logEvent("User #" + count + " signed up with username: " + username);
 					try{
-						out.writeObject(ServerMessage.accept());
+						out.writeObject(ServerMessage.Login());
 						return;
 					} catch (Exception e){
 						e.printStackTrace();
@@ -280,7 +281,7 @@ public class Server{
 							else if(data.messageType == 1){
 								// Not already connected to a game case
 								if(currentGame == null){
-									out.writeObject(ServerMessage.accept());
+									out.writeObject(ServerMessage.waiting());
 									this.findGame();
 								}
 								// Attempting to connect while still connected to a game.
@@ -289,8 +290,13 @@ public class Server{
 								}
 							}
 							else if (data.messageType == 2) {
-								if(this.currentGame.player1 == this){
+								System.out.println(data.arguments.get(0));
+								if(this.currentGame.player1.username.equals(this.username)){
+
+									makeMove(1, Integer.parseInt(data.arguments.get(0)));
+								} else {
 									makeMove(0, Integer.parseInt(data.arguments.get(0)));
+									
 								}
 							}
 							// Chat Message Case
@@ -299,7 +305,7 @@ public class Server{
 							}
 						}
 					} catch (Exception e) {
-						this.handleDC();
+						e.printStackTrace();
 					    break;
 					}
 				}

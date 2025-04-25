@@ -30,27 +30,26 @@ public class Game{
     public boolean makeMove(int player, int row) {
         // Player 1 == move when even
         // Player 2 == move when odd
-        if(player == currentMove % 2){
-            if(gameBoard.makeMove(player, row)){
-                try{
-                    currentMove++;
-                    if(currentMove % 2 == 0){
-                        player1.out.writeObject(ServerMessage.accept());
-                        player2.out.writeObject(ServerMessage.updateBoard(row));
+        
+            try{
+                
+                if(player == 1){
+                    System.out.println("Player1");
+                    player2.out.writeObject(ServerMessage.updateBoard(row));
 
-                    }
-                    else {
-                        player2.out.writeObject(ServerMessage.accept());
-                        player1.out.writeObject(ServerMessage.updateBoard(row));
-                    }
-                    return true;
                 }
-                catch(Exception e){
-                    e.printStackTrace();
+                else {
+                    System.out.println("Player2");
+                    player1.out.writeObject(ServerMessage.updateBoard(row));
                 }
+                currentMove++;
             }
-        }
-        return false;
+            catch(Exception e){
+                e.printStackTrace();
+            }
+
+        gameBoard.makeMove(player, row);
+        return true;
     }
 
     /**

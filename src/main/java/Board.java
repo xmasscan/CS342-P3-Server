@@ -83,7 +83,8 @@ public class Board {
         }
         // while loop ended bcs col no longer satisfies col < 6.
         // i.e. row is full, invalid move!
-        return false;
+        return true;
+        
     }
 
     // Win states can only be caused by updates to the board.

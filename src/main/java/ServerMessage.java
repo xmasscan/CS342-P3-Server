@@ -20,11 +20,21 @@ public class ServerMessage implements Serializable {
      *  4 - end Game
      *  5 - update Information
      *  6 - in Match
+     *  7 - does move
+     *  8 - login
+     *  9 - waiting()
      * @param argv
      */
     ServerMessage(int messageType, ArrayList<String> argv) {
         this.messageType = messageType;
         this.argv = argv;
+    }
+
+    public static ServerMessage waiting(){
+        int messageType = 9;
+        ArrayList<String> argv = new ArrayList<>();
+        argv.add("OK");
+        return new ServerMessage(messageType, argv); 
     }
 
     /**
@@ -38,6 +48,22 @@ public class ServerMessage implements Serializable {
         argv.add("OK");
         return new ServerMessage(messageType, argv);
     }
+
+    public static ServerMessage Login(){
+        int messageType = 8;
+        ArrayList<String> argv = new ArrayList<>();
+        argv.add("OK");
+        return new ServerMessage(messageType, argv);
+    }
+
+
+    public static ServerMessage move(Integer collumn){
+        int messageType =7;
+        ArrayList<String> argv = new ArrayList<String>();
+        argv.add(collumn.toString());
+        return new ServerMessage(messageType, argv);
+    }
+    
 
     /**
      * Reject Message
