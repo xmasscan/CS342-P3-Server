@@ -30,13 +30,10 @@ public class Game{
     public boolean makeMove(int player, int row) {
         // Player 1 == move when even
         // Player 2 == move when odd
-        
             try{
-                
                 if(player == 1){
                     System.out.println("Player1");
                     player2.out.writeObject(ServerMessage.updateBoard(row));
-
                 }
                 else {
                     System.out.println("Player2");

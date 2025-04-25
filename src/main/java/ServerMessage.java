@@ -57,10 +57,10 @@ public class ServerMessage implements Serializable {
     }
 
 
-    public static ServerMessage move(Integer collumn){
-        int messageType =7;
+    public static ServerMessage move(Integer column){
+        int messageType = 7;
         ArrayList<String> argv = new ArrayList<String>();
-        argv.add(collumn.toString());
+        argv.add(column.toString());
         return new ServerMessage(messageType, argv);
     }
     

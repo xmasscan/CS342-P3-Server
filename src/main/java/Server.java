@@ -211,7 +211,7 @@ public class Server{
 							return;
 						}
 						else{
-							server.logEvent("User #" + count + " attmpted to connect to a full game.");
+							server.logEvent("User #" + count + " attempted to connect to a full game.");
 						}
 					}
 				}
