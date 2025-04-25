@@ -15,6 +15,7 @@ import javafx.scene.control.ListView;
 public class Server{
 
 	ArrayList<String> userNameList;
+	int numberUsers = 0;
 	ArrayList<Integer> hashedPasswords;
 
 	int count = 1;
@@ -33,7 +34,11 @@ public class Server{
 		server = new TheServer();
 		server.start();
 	}
+
 	
+	
+
+
 	//eventually fills the two arrays from either a file or a database figure it out
 	// Yeah we are not doing this, we have two days.
 //	public void fillSavedUsers(){
@@ -113,12 +118,41 @@ public class Server{
 			 * @return
 			 *  The chat message sent as a String.
 			 */
-			public String handleChat(Message msg){
+			public void handleChat(Message msg){
+				
 				if(msg.messageType == 3){
-					return msg.arguments.get(0);
+					try {
+						this.out.writeObject(ServerMessage.acceptChat());
+					} catch (Exception e) {
+						// TODO: handle exception
+					}
+					
+					String user2 = msg.arguments.get(0);
+					if (user2.equals("")) {
+						for (ClientThread  client : clients) {
+							try {
+								client.out.writeObject(ServerMessage.updateChat(this.username, msg.arguments.get(1)));
+							} catch (Exception e) {
+								// TODO: handle exception
+								e.printStackTrace();
+							}
+							
+						}
+					} else {
+						for (ClientThread  client : clients) {
+							if (client.username.equals(msg.arguments.get(0))) {
+								try {
+									client.out.writeObject(ServerMessage.updateChat(this.username, msg.arguments.get(1)));
+								} catch (Exception e) {
+									// TODO: handle exception
+									e.printStackTrace();
+								}
+							}
+						}
+					}
+
 				}
 				else{
-					return "Invalid Message Returned! Type: " + msg.messageType;
 				}
 			}
 
@@ -149,11 +183,22 @@ public class Server{
 					// Code still running == Username is unique, allow it & update information thusly
 					this.loggedIn = true;
 					this.username = username;
+					numberUsers+=1;
 					// Log Username for checks against others, ability to print users, etc.
 					userNameList.add(username);
 					server.logEvent("User #" + count + " signed up with username: " + username);
+					for (ClientThread client:clients) {
+						if (!this.username.equals(client.username)) {
+							try {
+								client.out.writeObject(ServerMessage.updateClientList(username));
+							} catch (Exception e) {
+								// TODO: handle exception
+							}
+						}
+					}
 					try{
 						out.writeObject(ServerMessage.Login());
+						out.writeObject(ServerMessage.sendClientList(new Integer(numGames), userNameList));
 						return;
 					} catch (Exception e){
 						e.printStackTrace();
@@ -233,6 +278,8 @@ public class Server{
 					// Chat Message Argv:
 					// index 0: message
 					String chatMessage = msg.arguments.get(0);
+
+
 
 					// TODO: filters or whatever you want to validate messages here later
 
