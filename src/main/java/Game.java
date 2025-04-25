@@ -41,8 +41,12 @@ public class Game{
                 }
                 try{
                     currentMove++;
-                    player1.out.writeObject(ServerMessage.updateBoard(row));
-                    player2.out.writeObject(ServerMessage.updateBoard(row));
+                    if(currentMove % 2 == 0){
+                        player1.out.writeObject(ServerMessage.updateBoard(row));
+                    }
+                    else {
+                        player2.out.writeObject(ServerMessage.updateBoard(row));
+                    }
                     return true;
                 }
                 catch(Exception e){
