@@ -222,11 +222,49 @@ public class Board {
         // Internal reminder: 7 rows, 6 cols
         int lowestRow = row;
         int lowestCol = col;
+        String color = board[row][col].color;
+
         // Calculate lowest piece in LR diagonal pattern
-//        while(){
-//
-//        }
-        return false;
+        // While lowestRow & lowestCol in acceptable bounds...
+        while(lowestRow > 0 && lowestCol > 0){
+            // Broken into two loops for readability
+            // While potential next lowest chip matches color of current...
+            while(board[lowestRow - 1][lowestCol -1] != null && board[lowestRow - 1][lowestCol - 1].color.compareTo(color) == 0){
+                lowestRow--;
+                lowestCol--;
+            }
+        }
+
+        // Check lowestRow & lowestCol against the maximums we calculated in previous functions
+        // lowestRow max = 3 - as per checkHorizontal
+        // lowestCol max = 2 - as per checkVertical
+
+        // Check row first
+        if(lowestRow < 0 || lowestRow > 3){
+            return false;
+        }
+        // Then check the column position!
+        if(lowestCol < 0 || lowestCol > 2){
+            return false;
+        }
+
+        // Code still running means that there is a viable lowest chip stored in memory.
+        // Check the pattern for correctness!
+        for(int i = 1; i < 4; i++) {
+            // Breaking down larger if statement into multiple for readability.
+            // Effectively the same logic as the above checks
+
+            // Null check
+            if(board[lowestRow + i][lowestCol + i] == null){
+                return false;
+            }
+            // Similarity check
+            else if(board[lowestRow + i][lowestCol + i].color.compareTo(color) != 0){
+                return false;
+            }
+        }
+        // If code is still running, pattern must match. Return true!
+        return true;
     }
 
     /**
