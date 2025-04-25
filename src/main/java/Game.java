@@ -31,7 +31,7 @@ public class Game{
         // Player 1 == move when even
         // Player 2 == move when odd
         if(player == currentMove % 2){
-            if(makeMove(player, row)){
+            if(gameBoard.makeMove(player, row)){
                 try{
                     currentMove++;
                     if(currentMove % 2 == 0){
