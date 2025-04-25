@@ -140,21 +140,20 @@ public class Board {
      */
     private boolean verticalCheck(int row, int col){
 
+        String color = board[row][col].color;
         int lowVert = col;
-        // Find lowest chip in a potential vertical connection
-        while(lowVert > 0 && board[row][lowVert].color.compareTo(board[row][lowVert].color) == 0){
+        // Find the lowest chip in a potential vertical connection
+        while(lowVert > 0 && board[row][lowVert].color.compareTo(color) == 0){
             lowVert--;
         }
         // 2 + 3 = 5 = max col height
-        if(lowVert > 2){
+        if(lowVert < 0 || lowVert > 2){
             return false;
         }
 
-        Chip player = board[row][col];
-        String color = player.color;
         // check 3 above columns
         for(int i = 1; i < 4; i++) {
-            if (board[row][col + i] == null || board[row][col + i].color.compareTo(color) != 0) {
+            if (board[row][lowVert + i] == null || board[row][lowVert + i].color.compareTo(color) != 0) {
                 return false;
             }
         }
