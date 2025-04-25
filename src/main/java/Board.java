@@ -77,14 +77,15 @@ public class Board {
             else{
                 board[row][col] = player2;
             }
-            // successful move
+            // Move has successfully been made!
             moveCount++;
+            // check
             return true;
         }
         // while loop ended bcs col no longer satisfies col < 6.
         // i.e. row is full, invalid move!
         return true;
-        
+
     }
 
     // Win states can only be caused by updates to the board.
@@ -99,38 +100,56 @@ public class Board {
         // Either col is at top (violated first case)
         // or [row][col] was null, therefore [row][col - 1] will have the last chip :)
         col--;
-        // TODO: Implement Board checking
-        // Vertical checking
-        if(row > 0){
-            int lowVert = col;
-            // Find lowest chip in a potential vertical connection
-            while(lowVert > 0 && board[row][lowVert].color.compareTo(board[row][lowVert].color) == 0){
-                lowVert--;
-            }
-            // 2 + 3 = 5 = max col height
-            if(lowVert <= 2){
-                winFlag = verticalCheck(row, lowVert);
-                if(winFlag){
-                    return true;
-                }
-            }
+        // Vertical Check (|)
+        if(verticalCheck(row, col)){
+            return true;
         }
-        // col == 0
-        else{
-            winFlag = verticalCheck(row, col);
-            if(winFlag){
-                return true;
-            }
+        // Horizontal Check (-)
+        else if(horizontalCheck(row, col)){
+            return true;
         }
-        return false;
+        // Diagonal Left-to-Right (\)
+        else if(diagonalCheckLR(row,col)){
+            return true;
+        }
+        // Diagonal Right-to-Left (/)
+        else if(diagonalCheckRL(row,col)){
+            return true;
+        }
+        else {
+            return false;
+        }
     }
 
     // CHECK BOARD HELPER FUNCTIONS //
 
-    // Vertical Checking
-    // Supply bottom most-possible piece
-    // Assumes at minimum that four cells exist above it
+    /**
+     * Vertical Connection Check
+     * Definition: 4 Chips of the same type must be present, vertically.
+     * Example: (Chips represented by "O")
+     * O
+     * O
+     * O
+     * O
+     * @param row
+     *  The row the last updated chip is present in
+     * @param col
+     *  The column the last updated chip is present in
+     * @return
+     *  Whether the pattern (vertical connection) is present
+     */
     private boolean verticalCheck(int row, int col){
+
+        int lowVert = col;
+        // Find lowest chip in a potential vertical connection
+        while(lowVert > 0 && board[row][lowVert].color.compareTo(board[row][lowVert].color) == 0){
+            lowVert--;
+        }
+        // 2 + 3 = 5 = max col height
+        if(lowVert > 2){
+            return false;
+        }
+
         Chip player = board[row][col];
         String color = player.color;
         // check 3 above columns
@@ -141,5 +160,61 @@ public class Board {
         }
         // if code still running, no mismatch found
         return true;
+    }
+
+    /**
+     * Horizontal Check
+     * Definition: 4 Chips of the same type must be present in sequence, horizontally
+     * Example: (Chips represented by "O"s)
+     * O O O O
+     * @param row
+     *  The row the last updated chip is present in
+     * @param col
+     *  The column the last updated chip is present in
+     * @return
+     *  Whether the pattern (horizontal connection) is present
+     */
+    private boolean horizontalCheck(int row, int col){
+        return false;
+    }
+
+    /**
+     * Diagonal Check (LR Variant)
+     * Definition: 4 Chips of the same type must be present in sequence, diagonally.
+     * This variant checks for a diagonal match wherein the lowest chip is at the left.
+     * Example: (Chips represented by "O"s)
+     *       O
+     *     O
+     *   O
+     * O
+     * @param row
+     *  The row the last updated chip is present in
+     * @param col
+     *  The column the last updated chip is present in
+     * @return
+     *  Whether the pattern (diagonal LR connection) is present
+     */
+    private boolean diagonalCheckLR(int row, int col) {
+        return false;
+    }
+
+    /**
+     * Diagonal Check (RL Variant)
+     * Definition: 4 Chips of the same type must be present in sequence, diagonally.
+     * This variant checks for a diagonal match wherein the lowest chip is at the right.
+     * Example: (Chips represented by "O"s)
+     * O
+     *   O
+     *     O
+     *       O
+     * @param row
+     *  The row the last updated chip is present in
+     * @param col
+     *  The column the last updated chip is present in
+     * @return
+     *  Whether the pattern (diagonal RL connection) is present
+     */
+    private boolean diagonalCheckRL(int row, int col) {
+        return false;
     }
 }
