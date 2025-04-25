@@ -174,7 +174,32 @@ public class Board {
      *  Whether the pattern (horizontal connection) is present
      */
     private boolean horizontalCheck(int row, int col){
-        return false;
+        // Calculate the leftmost viable chip
+        int leftMost = row;
+        String color = board[row][col].color;
+
+        // Keep moving left while the "leftMost" chip is within acceptable bounds AND the chip to its left is ALSO the same color.
+        while(leftMost > 0 &&  board[leftMost - 1][col].color.compareTo(color) == 0){
+            leftMost--;
+        }
+
+        // 7 rows == largest infex leftMost can be is leftMost = 3 i.e. the fourth row
+        // Example
+        // O O O X X X X
+        if(leftMost < 0 || leftMost > 3){
+            return false;
+        }
+
+        // Actual check. Verify there are FOUR chips that come after leftmost of the same color.
+        // Also verifies current piece matches pattern, for extra security :)
+        for(int i = 0; i < 4; i++) {
+            // If board at this index == null (i.e. no move there) OR the color doesn't match, report failure to match.
+            if (board[leftMost + i][col] == null || board[leftMost + i][col].color.compareTo(color) != 0) {
+                return false;
+            }
+        }
+        // If code is still running, no discrepancy was found, therefore pattern must hold
+        return true;
     }
 
     /**
