@@ -260,7 +260,6 @@ public class Server{
 				while(true) {
 					try {
 						Message data = (Message) in.readObject();
-
 						// If user is not logged in, only legal message is to attempt to sign in!
 						if (!loggedIn) {
 							if (data.messageType == 0) {
@@ -305,7 +304,7 @@ public class Server{
 							}
 						}
 					} catch (Exception e) {
-						e.printStackTrace();
+						this.handleDC();
 					    break;
 					}
 				}
