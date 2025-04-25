@@ -284,6 +284,55 @@ public class Board {
      *  Whether the pattern (diagonal RL connection) is present
      */
     private boolean diagonalCheckRL(int row, int col) {
-        return false;
+        // Internal reminder: 7 rows, 6 cols
+        int lowestRow = row;
+        int lowestCol = col;
+        String color = board[row][col].color;
+
+        // Calculate lowest piece in LR diagonal pattern
+        // While lowestRow & lowestCol in acceptable bounds...
+        while(lowestRow < 7 && lowestCol > 0){
+            // Broken into two loops for readability
+            // While potential next lowest chip matches color of current...
+            while(board[lowestRow + 1][lowestCol -1] != null && board[lowestRow + 1][lowestCol - 1].color.compareTo(color) == 0){
+                lowestRow++;
+                lowestCol--;
+            }
+        }
+
+        // Check lowestCol against the maximum we calculated in previous function
+        // lowestCol max = 2 - as per checkVertical
+        // lowestRow goes right and then back left, so it needs 3 rows behind it to check
+        // therefore the minimum row it can be in is the 4th at row = 3
+        // therefore the previous max is the new minimum :)
+
+        // Check row first
+        if(lowestRow < 3 || lowestRow > 6){
+            return false;
+        }
+        // Then check the column position!
+        if(lowestCol < 0 || lowestCol > 2){
+            return false;
+        }
+
+        // Check iterates from bottom right to top left, so row is going physically backwards!
+
+        // Code still running means that there is a viable lowest chip stored in memory.
+        // Check the pattern for correctness!
+        for(int i = 1; i < 4; i++) {
+            // Breaking down larger if statement into multiple for readability.
+            // Effectively the same logic as the above checks
+
+            // Null check
+            if(board[lowestRow - i][lowestCol + i] == null){
+                return false;
+            }
+            // Similarity check
+            else if(board[lowestRow - i][lowestCol + i].color.compareTo(color) != 0){
+                return false;
+            }
+        }
+        // If code is still running, pattern must match. Return true!
+        return true;
     }
 }
