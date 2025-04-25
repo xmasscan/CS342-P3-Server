@@ -14,6 +14,7 @@ public class Game{
 
     //hold board information
     Board gameBoard;
+    // int representation of the player who is currently moving
     int currentMove;
 
     /**
@@ -30,23 +31,62 @@ public class Game{
     public boolean makeMove(int player, int row) {
         // Player 1 == move when even
         // Player 2 == move when odd
-            try{
-                if(player == 1){
-                    System.out.println("Player1");
+        boolean validMove = false;
+        try{
+            if(player == 1){
+                System.out.println("Player1");
+                if(gameBoard.makeMove(player, row)) {
+                    validMove = true;
                     player2.out.writeObject(ServerMessage.updateBoard(row));
                 }
-                else {
-                    System.out.println("Player2");
+            }
+            else {
+                System.out.println("Player2");
+                if(gameBoard.makeMove(player, row)) {
+                    validMove = true;
                     player1.out.writeObject(ServerMessage.updateBoard(row));
                 }
-                currentMove++;
             }
-            catch(Exception e){
-                e.printStackTrace();
-            }
+            currentMove++;
+        }
+        catch(Exception e){
+            e.printStackTrace();
+        }
 
-        gameBoard.makeMove(player, row);
-        return true;
+        // Attempt to make a move!
+        // If the move was successful, check the state of the board!
+        if(validMove){
+            // If the move caused the player to win...
+//            if(gameBoard.checkBoard(row)){
+//                gameOver = true;
+//                // if the player who cast the winning move was player 1, assign them the winner!
+//                Server.ClientThread winner;
+//                Server.ClientThread loser;
+//                if(player == 1){
+//                    winner = player1;
+//                    loser = player2;
+//                }
+//                // otherwise, the winner must be player 2, then assign them as the winner!
+//                else{
+//                    winner = player2;
+//                    loser = player1;
+//                }
+//                // Alert each player if they won or lost!
+//                try{
+//                    // Alerts winner that they won.
+//                    winner.out.writeObject(ServerMessage.endGame(true));
+//                    // Alerts the loser that they lost.
+//                    loser.out.writeObject(ServerMessage.endGame(false));
+//                }
+//                catch(Exception e){
+//                    e.printStackTrace();
+//                }
+//            }
+            return true;
+        }
+        else{
+            return false;
+        }
     }
 
     /**
@@ -138,6 +178,7 @@ public class Game{
             // Attempt to inform winner they won, assuming they still are connected.
             try {
                 other.out.writeObject(ServerMessage.endGame(true));
+                gameOver = true;
             }
             catch (Exception e) {
                 // If this fails, other user DC'd, just leave it.
@@ -145,6 +186,14 @@ public class Game{
                 return;
             }
         }
+
+    }
+
+    /**
+     * endGame
+     *
+     */
+    public void endGame(){
 
     }
 

@@ -45,36 +45,38 @@ public class Board {
         for(int i = 5; i >= 0; i--){
             for(int j = 0; j < 6; j++){
                 System.out.print("[");
-                if(board[i][j] == null){
+                if(board[j][i] == null){
                     System.out.print(" ");
                 }
                 else{
                     // Red = R, Yellow = Y, etc.
-                    System.out.print(board[i][j].color.substring(0,1).toUpperCase());
+                    System.out.print(board[j][i].color.substring(0,1).toUpperCase());
                 }
                 System.out.print("]");
             }
             System.out.println();
         }
+        System.out.println();
     }
 
     public boolean makeMove(int player, int row){
+        this.printBoard();
         // Invalid row handling
         if(row < 0 || row > 6){
             return false;
         }
         int col = 0;
-        // Find lowest free cell in current row.
-        while(col < 7 && board[row][col] != null){
+        // Find the lowest free cell in current row.
+        while(col < 5 && board[row][col] != null){
             col++;
         }
         // If such a cell is available...
         if (board[row][col] == null){
             // player1 logically goes first
-            if(moveCount % 2 == 0){
+            if(player == 1){
                 board[row][col] = player1;
             }
-            else{
+            else if(player == 2){
                 board[row][col] = player2;
             }
             // Move has successfully been made!

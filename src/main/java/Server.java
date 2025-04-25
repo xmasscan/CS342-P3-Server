@@ -224,12 +224,14 @@ public class Server{
 
 			//check to see if move is valid, make a status update, update move on other cleints side
 			public void makeMove(int player, int row){
-				this.currentGame.makeMove(player, row);
-
+				boolean validMove = false;
+				while(!validMove) {
+					validMove = this.currentGame.makeMove(player, row);
+				}
 			}
 
 			public void recieveChat(Message msg){
-				if(msg.messageType == 4){
+				if(msg.messageType == 3){
 					// Chat Message Argv:
 					// index 0: message
 					String chatMessage = msg.arguments.get(0);
@@ -294,8 +296,7 @@ public class Server{
 
 									makeMove(1, Integer.parseInt(data.arguments.get(0)));
 								} else {
-									makeMove(0, Integer.parseInt(data.arguments.get(0)));
-									
+									makeMove(2, Integer.parseInt(data.arguments.get(0)));
 								}
 							}
 							// Chat Message Case
