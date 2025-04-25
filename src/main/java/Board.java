@@ -179,7 +179,7 @@ public class Board {
         String color = board[row][col].color;
 
         // Keep moving left while the "leftMost" chip is within acceptable bounds AND the chip to its left is ALSO the same color.
-        while(leftMost > 0 &&  board[leftMost - 1][col].color.compareTo(color) == 0){
+        while(leftMost > 0 && board[leftMost-1][col] != null && board[leftMost - 1][col].color.compareTo(color) == 0){
             leftMost--;
         }
 
@@ -219,6 +219,11 @@ public class Board {
      *  Whether the pattern (diagonal LR connection) is present
      */
     private boolean diagonalCheckLR(int row, int col) {
+        // Internal reminder: 7 rows, 6 cols
+        int lowestRow = row;
+        int lowestCol = col;
+        // Calculate lowest piece in LR diagonal pattern
+        while()
         return false;
     }
 
