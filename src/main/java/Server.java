@@ -75,10 +75,29 @@ public class Server{
 		 * Makes a new, publicly accessible game.
 		 */
 		public void startGame(ClientThread client){
-			Game game = new Game();
+			Game game = new Game(this);
 			games.add(game);
 			game.connect(client);
 			client.currentGame = game;
+		}
+
+		/**
+		 * endGame
+		 * Attempt to delete a game.
+		 * If it is over, remove it from the games ArrayList & let the GC handle it
+		 * @param game
+		 */
+		public void endGame(Game game){
+			if(game.gameOver){
+				// Sever Players from game
+				if(game.player1 != null){
+					game.player1.currentGame = null;
+				}
+				if(game.player2 != null){
+					game.player2.currentGame = null;
+				}
+				games.remove(game);
+			}
 		}
 	}
 
@@ -227,6 +246,9 @@ public class Server{
 				boolean validMove = false;
 				while(!validMove) {
 					validMove = this.currentGame.makeMove(player, row);
+					if(!validMove) {
+						server.logEvent("User #" + count + " attempted an invalid move!");
+					}
 				}
 			}
 

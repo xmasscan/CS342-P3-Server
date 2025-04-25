@@ -60,7 +60,6 @@ public class Board {
     }
 
     public boolean makeMove(int player, int row){
-        this.printBoard();
         // Invalid row handling
         if(row < 0 || row > 6){
             return false;
@@ -81,6 +80,7 @@ public class Board {
             }
             // Move has successfully been made!
             moveCount++;
+            this.printBoard();
             // check
             return true;
         }
@@ -93,6 +93,7 @@ public class Board {
     // Win states can only be caused by updates to the board.
     // Therefore, do not check the WHOLE board, just use the last piece as place to begin.
     public boolean checkBoard(int row){
+        System.out.println("Checking...");
         // Find top column in row, must be last added piece.
         int col = 0;
         boolean winFlag = false;
@@ -141,6 +142,7 @@ public class Board {
      *  Whether the pattern (vertical connection) is present
      */
     private boolean verticalCheck(int row, int col){
+        System.out.println("Vertical Check...");
 
         String color = board[row][col].color;
         int lowVert = col;
@@ -176,6 +178,7 @@ public class Board {
      *  Whether the pattern (horizontal connection) is present
      */
     private boolean horizontalCheck(int row, int col){
+        System.out.println("Horizontal Check...");
         // Calculate the leftmost viable chip
         int leftMost = row;
         String color = board[row][col].color;
@@ -221,6 +224,7 @@ public class Board {
      *  Whether the pattern (diagonal LR connection) is present
      */
     private boolean diagonalCheckLR(int row, int col) {
+        System.out.println("DiagonalLR Check...");
         // Internal reminder: 7 rows, 6 cols
         int lowestRow = row;
         int lowestCol = col;
@@ -228,13 +232,11 @@ public class Board {
 
         // Calculate lowest piece in LR diagonal pattern
         // While lowestRow & lowestCol in acceptable bounds...
-        while(lowestRow > 0 && lowestCol > 0){
+        while(lowestRow > 0 && lowestCol > 0 && board[lowestRow - 1][lowestCol -1] != null && board[lowestRow - 1][lowestCol - 1].color.compareTo(color) == 0){
             // Broken into two loops for readability
             // While potential next lowest chip matches color of current...
-            while(board[lowestRow - 1][lowestCol -1] != null && board[lowestRow - 1][lowestCol - 1].color.compareTo(color) == 0){
-                lowestRow--;
-                lowestCol--;
-            }
+            lowestRow--;
+            lowestCol--;
         }
 
         // Check lowestRow & lowestCol against the maximums we calculated in previous functions
@@ -286,20 +288,20 @@ public class Board {
      *  Whether the pattern (diagonal RL connection) is present
      */
     private boolean diagonalCheckRL(int row, int col) {
+        System.out.println("DiagonalRL Check...");
         // Internal reminder: 7 rows, 6 cols
         int lowestRow = row;
         int lowestCol = col;
+        System.out.println("\t" + row + "," + col);
         String color = board[row][col].color;
 
-        // Calculate lowest piece in LR diagonal pattern
+        // Calculate the lowest piece in LR diagonal pattern
         // While lowestRow & lowestCol in acceptable bounds...
-        while(lowestRow < 7 && lowestCol > 0){
+        while(lowestRow < 6 && lowestCol > 0 && board[lowestRow + 1][lowestCol -1] != null && board[lowestRow + 1][lowestCol - 1].color.compareTo(color) == 0){
             // Broken into two loops for readability
             // While potential next lowest chip matches color of current...
-            while(board[lowestRow + 1][lowestCol -1] != null && board[lowestRow + 1][lowestCol - 1].color.compareTo(color) == 0){
-                lowestRow++;
-                lowestCol--;
-            }
+            lowestRow++;
+            lowestCol--;
         }
 
         // Check lowestCol against the maximum we calculated in previous function
