@@ -17,6 +17,9 @@ public class ServerMessage implements Serializable {
      *  1 = reject
      *  2 = update board state
      *  3 = update chat
+     *  4 - end Game
+     *  5 - update Information
+     *  6 - in Match
      * @param argv
      */
     ServerMessage(int messageType, ArrayList<String> argv) {
