@@ -33,19 +33,15 @@ public class Game{
         if(player == currentMove % 2){
             if(makeMove(player, row)){
                 try{
-                    player1.out.writeObject(ServerMessage.accept());
-                    player2.out.writeObject(ServerMessage.accept());
-                }
-                catch(Exception e){
-                    e.printStackTrace();
-                }
-                try{
                     currentMove++;
                     if(currentMove % 2 == 0){
-                        player1.out.writeObject(ServerMessage.updateBoard(row));
+                        player1.out.writeObject(ServerMessage.accept());
+                        player2.out.writeObject(ServerMessage.updateBoard(row));
+
                     }
                     else {
-                        player2.out.writeObject(ServerMessage.updateBoard(row));
+                        player2.out.writeObject(ServerMessage.accept());
+                        player1.out.writeObject(ServerMessage.updateBoard(row));
                     }
                     return true;
                 }
