@@ -296,8 +296,6 @@ public class Game{
             player.rematchState = 1;
         }
         else{
-            
-
             player.rematchState = 0;
             // Alert other player of rejection if they would be waiting;
             if(this.player1 != null && this.player1.rematchState == 1){
@@ -504,6 +502,12 @@ public class Game{
 
             // Code still running == Both players accepted the rematch!
             // Reset state of board.
+            if(this.player1 != null){
+                this.player1.rematchState = -1;
+            }
+            if(this.player2 != null){
+                this.player2.rematchState = -1;
+            }
             this.resetGame();
         }
     }
