@@ -23,11 +23,32 @@ public class ServerMessage implements Serializable {
      *  7 - does move
      *  8 - login
      *  9 - waiting()
+     *  1o - acceptchat
+     *  11 - send Cleint list
+     *  12 - update clientlist
      * @param argv
      */
     ServerMessage(int messageType, ArrayList<String> argv) {
         this.messageType = messageType;
         this.argv = argv;
+    }
+
+    public static ServerMessage sendClientList(Integer numClients, ArrayList<String> cleints) {
+        int messageType = 11;
+        ArrayList<String> argv = new ArrayList<>();
+        for(String cleint:cleints) {
+            argv.add(cleint);
+        }
+
+        return new ServerMessage(messageType, argv);
+    }
+
+    public static ServerMessage updateClientList(String cleint) {
+        int messageType = 12;
+        ArrayList<String> argv = new ArrayList<>();
+        argv.add(cleint);
+
+        return new ServerMessage(messageType, argv);
     }
 
     public static ServerMessage waiting(){
@@ -57,10 +78,10 @@ public class ServerMessage implements Serializable {
     }
 
 
-    public static ServerMessage move(Integer column){
-        int messageType = 7;
+    public static ServerMessage move(Integer collumn){
+        int messageType =7;
         ArrayList<String> argv = new ArrayList<String>();
-        argv.add(column.toString());
+        argv.add(collumn.toString());
         return new ServerMessage(messageType, argv);
     }
     
@@ -89,6 +110,13 @@ public class ServerMessage implements Serializable {
         ArrayList<String> argv = new ArrayList<>();
         // Casts int to Integer, then runs toString() on Integer object
         argv.add(((Integer) row).toString());
+        return new ServerMessage(messageType, argv);
+    }
+
+    public static ServerMessage acceptChat(){
+        int messageType = 10;
+        ArrayList<String> argv = new ArrayList<>();
+        argv.add("OK");
         return new ServerMessage(messageType, argv);
     }
 

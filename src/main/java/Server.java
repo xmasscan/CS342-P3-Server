@@ -15,6 +15,7 @@ import javafx.scene.control.ListView;
 public class Server{
 
 	ArrayList<String> userNameList;
+	int numberUsers = 0;
 	ArrayList<Integer> hashedPasswords;
 
 	int count = 1;
@@ -33,7 +34,11 @@ public class Server{
 		server = new TheServer();
 		server.start();
 	}
+
 	
+	
+
+
 	//eventually fills the two arrays from either a file or a database figure it out
 	// Yeah we are not doing this, we have two days.
 //	public void fillSavedUsers(){
@@ -208,11 +213,23 @@ public class Server{
 					// Code still running == Username is unique, allow it & update information thusly
 					this.loggedIn = true;
 					this.username = username;
+					numberUsers+=1;
 					// Log Username for checks against others, ability to print users, etc.
 					userNameList.add(username);
 					server.logEvent("User #" + count + " signed up with username: " + username);
+					for (ClientThread client:clients) {
+						if (!this.username.equals(client.username)) {
+							try {
+								client.out.writeObject(ServerMessage.updateClientList(username));
+							} catch (Exception e) {
+								// TODO: handle exception
+							}
+						}
+					}
 					try{
-						out.writeObject(ServerMessage.Login(username));
+						out.writeObject(ServerMessage.Login());
+						out.writeObject(ServerMessage.sendClientList(new Integer(numGames), userNameList));
+
 						return;
 					} catch (Exception e){
 						e.printStackTrace();
@@ -298,6 +315,8 @@ public class Server{
 					// index 0: message
 					String username = msg.arguments.get(0);
 					String chatMessage = msg.arguments.get(1);
+
+
 
 					// TODO: filters or whatever you want to validate messages here later
 					String filteredMessage = filterChat(chatMessage);
