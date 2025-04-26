@@ -90,6 +90,19 @@ public class Board {
 
     }
 
+
+    public boolean checkFull(){
+        for(int i = 5; i >= 0; i--){
+            for(int j = 0; j < 6; j++){
+                if(board[j][i] == null){
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
+
     // Win states can only be caused by updates to the board.
     // Therefore, do not check the WHOLE board, just use the last piece as place to begin.
     public boolean checkBoard(int row){

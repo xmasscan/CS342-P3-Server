@@ -79,15 +79,26 @@ public class Game{
                 // Alert each player if they won or lost!
                 try{
                     // Alerts winner that they won.
-                    winner.out.writeObject(ServerMessage.endGame(true));
+                    winner.out.writeObject(ServerMessage.endGame(1, winner.username));
                     // Alerts the loser that they lost.
-                    loser.out.writeObject(ServerMessage.endGame(false));
+                    loser.out.writeObject(ServerMessage.endGame(0, loser.username));
                 }
                 catch(Exception e){
                     e.printStackTrace();
                 }
                 // Game is over, end it!
                 endGame();
+            }
+            else if (gameBoard.checkFull()) {
+                try {
+                    player1.out.writeObject(ServerMessage.endGame(2, player2.username));
+                    player2.out.writeObject(ServerMessage.endGame(2,player1.username));
+                    endGame();
+                    
+                } catch (Exception e) {
+                    // TODO: handle exception
+                }
+                
             }
             return true;
         }
@@ -167,11 +178,15 @@ public class Game{
     public void handleDC(Server.ClientThread player){
         // Determine which player DC'd
         Server.ClientThread other;
+        Server.ClientThread me;
         if(this.player1 == player){
+            me = player1;
             this.player1 = null;
             other = player2;
+            
         }
         else{
+            me = player1;
             this.player2 = null;
             other = player1;
         }
@@ -190,7 +205,7 @@ public class Game{
             }
             // Attempt to inform winner they won, assuming they still are connected.
             try {
-                other.out.writeObject(ServerMessage.endGame(true));
+                other.out.writeObject(ServerMessage.endGame(1, me.username ));
                 gameOver = true;
                 endGame();
             }

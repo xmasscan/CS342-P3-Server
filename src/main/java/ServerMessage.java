@@ -117,14 +117,16 @@ public class ServerMessage implements Serializable {
      * @return
      *  A ServerMessage containing a string informing the user if they won or lost.
      */
-    public static ServerMessage endGame(boolean isWinner){
+    public static ServerMessage endGame(int winState, String Opponent){
         int messageType = 4;
         ArrayList<String> argv = new ArrayList<>();
-        if(isWinner){
+        if(winState == 1){
             argv.add("Winner");
         }
-        else{
+        else if (winState == 0){
             argv.add("Loser");
+        } else {
+            argv.add("Draw");
         }
         return new ServerMessage(messageType, argv);
     }
