@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Text?>
+<?import javafx.scene.shape.Circle?>
+
+<?import javafx.geometry.Insets?>
+
+<VBox fx:controller="TheController" xmlns:fx="http://javafx.com/fxml" spacing = "5" maxWidth = "250.0" minWidth = "250.0" maxHeight = "700.0" minHeight = "700.0">
+    <ScrollPane fx:id="chatbox">
+       <content>
+          <VBox fx:id="chatContent">
+          </VBox>
+       </content>
+    </ScrollPane>
+  </VBox>

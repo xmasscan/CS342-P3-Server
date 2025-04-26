@@ -14,6 +14,8 @@ import javafx.scene.control.ListView;
 
 public class Server{
 
+	Consumer<String> outputs;
+
 	ArrayList<String> userNameList;
 	ArrayList<Integer> hashedPasswords;
 
@@ -26,7 +28,9 @@ public class Server{
 	ArrayList<Integer> rematchesAcceptance = new ArrayList<Integer>();
 	Integer numRematches = new Integer(0);
 
-	Server(){
+	Server(Consumer<String> call){
+
+		outputs = call;
 		// Init relevant data
 		userNameList = new ArrayList<String>();
 		hashedPasswords = new ArrayList<Integer>();
@@ -71,6 +75,7 @@ public class Server{
 		public void logEvent(String message){
 			Date currentTime = new Date();
 			System.out.println(currentTime + ": " + message);
+			outputs.accept(currentTime + ": " + message);
 		}
 
 		/**
