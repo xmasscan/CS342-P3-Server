@@ -77,6 +77,7 @@ public class Game{
                 // if the player who cast the winning move was player 1, assign them the winner!
                 Server.ClientThread winner;
                 Server.ClientThread loser;
+
                 if(player == 1){
                     this.winner = 1;
                     try{
@@ -86,6 +87,30 @@ public class Game{
                         this.player1.handleDC();
                     }
                     try{
+                        if (player1 != null && player2 != null){
+                                int hi =  this.winner;
+                                double prob1 = 1.0 / (1.0 + Math.pow(10, (( player1.elo -  player2.elo) / 400.0))); 
+                                double prob2 = 1.0 / (1.0 + Math.pow(10, (( player2.elo -  player1.elo) / 400.0))); 
+                                
+                                if (hi == 1) {
+                                     player1.elo +=Math.round(50*(1-prob1));
+                                     player2.elo +=Math.round(50*(0-prob2));
+                                } else if (hi == 2) {
+                                     player2.elo += Math.round(50*(1-prob2));
+                                     player1.elo += Math.round(50*(0-prob1));
+                                } else {
+                                     player2.elo += Math.round(50*(0.5-prob2));
+                                     player1.elo += Math.round(50*(0.5-prob1));
+                                }
+                
+                                try {
+                                     player1.out.writeObject(ServerMessage.updateInformation( player1.username, 0,  player1.elo, 0));
+                                     player2.out.writeObject(ServerMessage.updateInformation( player2.username, 0,  player2.elo, 0));
+                                
+                                } catch (Exception e) {
+                                    // TODO: handle exception
+                                }
+                            }
                         this.player2.out.writeObject(ServerMessage.rematch());
                     }
                     catch(Exception e){
@@ -95,6 +120,32 @@ public class Game{
                 // otherwise, the winner must be player 2, then assign them as the winner!
                 else{
                     this.winner = 2;
+
+                    if (player1 != null && player2 != null){
+                        int hi =  this.winner;
+                        double prob1 = 1.0 / (1.0 + Math.pow(10, (( player1.elo -  player2.elo) / 400.0))); 
+                        double prob2 = 1.0 / (1.0 + Math.pow(10, (( player2.elo -  player1.elo) / 400.0))); 
+                        
+                        if (hi == 1) {
+                             player1.elo +=Math.round(50*(1-prob1));
+                             player2.elo +=Math.round(50*(0-prob2));
+                        } else if (hi == 2) {
+                             player2.elo += Math.round(50*(1-prob2));
+                             player1.elo += Math.round(50*(0-prob1));
+                        } else {
+                             player2.elo += Math.round(50*(0.5-prob2));
+                             player1.elo += Math.round(50*(0.5-prob1));
+                        }
+        
+                        try {
+                             player1.out.writeObject(ServerMessage.updateInformation( player1.username, 0,  player1.elo, 0));
+                             player2.out.writeObject(ServerMessage.updateInformation( player2.username, 0,  player2.elo, 0));
+                        
+                        } catch (Exception e) {
+                            // TODO: handle exception
+                        }
+                    }
+
                     try{
                         this.player1.out.writeObject(ServerMessage.rematch());
                     }
@@ -114,6 +165,30 @@ public class Game{
                 try {
                     gameOver = true;
                     this.winner = -1;
+                    if (player1 != null && player2 != null){
+                        int hi =  this.winner;
+                        double prob1 = 1.0 / (1.0 + Math.pow(10, (( player1.elo -  player2.elo) / 400.0))); 
+                        double prob2 = 1.0 / (1.0 + Math.pow(10, (( player2.elo -  player1.elo) / 400.0))); 
+                        
+                        if (hi == 1) {
+                             player1.elo +=Math.round(50*(1-prob1));
+                             player2.elo +=Math.round(50*(0-prob2));
+                        } else if (hi == 2) {
+                             player2.elo += Math.round(50*(1-prob2));
+                             player1.elo += Math.round(50*(0-prob1));
+                        } else {
+                             player2.elo += Math.round(50*(0.5-prob2));
+                             player1.elo += Math.round(50*(0.5-prob1));
+                        }
+        
+                        try {
+                             player1.out.writeObject(ServerMessage.updateInformation( player1.username, 0,  player1.elo, 0));
+                             player2.out.writeObject(ServerMessage.updateInformation( player2.username, 0,  player2.elo, 0));
+                        
+                        } catch (Exception e) {
+                            // TODO: handle exception
+                        }
+                    }
                     try{
                         this.player1.out.writeObject(ServerMessage.rematch());
                     }
@@ -221,6 +296,8 @@ public class Game{
             player.rematchState = 1;
         }
         else{
+            
+
             player.rematchState = 0;
             // Alert other player of rejection if they would be waiting;
             if(this.player1 != null && this.player1.rematchState == 1){

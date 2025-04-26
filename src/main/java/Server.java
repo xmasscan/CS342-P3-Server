@@ -94,29 +94,7 @@ public class Server{
 		public void endGame(Game game){
 			if(game.gameOver){
 				// Sever Players from game
-
-				int hi = game.winner;
-				double prob1 = 1.0 / (1.0 + Math.pow(10, ((game.player1.elo - game.player2.elo) / 400.0))); 
-				double prob2 = 1.0 / (1.0 + Math.pow(10, ((game.player2.elo - game.player1.elo) / 400.0))); 
 				
-				if (hi == 0) {
-					game.player1.elo +=Math.round(50*(1-prob1));
-					game.player2.elo +=Math.round(50*(0-prob2));
-				} else if (hi == 1) {
-					game.player2.elo += Math.round(50*(1-prob2));
-					game.player1.elo += Math.round(50*(0-prob1));
-				} else {
-					game.player2.elo += Math.round(50*(0.5-prob2));
-					game.player1.elo += Math.round(50*(0.5-prob1));
-				}
-
-				try {
-					game.player1.out.writeObject(ServerMessage.updateInformation(game.player1.username, 0, game.player1.elo, 0));
-					game.player2.out.writeObject(ServerMessage.updateInformation(game.player2.username, 0, game.player2.elo, 0));
-					
-				} catch (Exception e) {
-					// TODO: handle exception
-				}
 				if(game.player1 != null){
 					game.player1.currentGame = null;
 				}
@@ -145,7 +123,7 @@ public class Server{
 			ObjectInputStream in;
 			ObjectOutputStream out;
 
-			int elo = 0; 
+			int elo = 1500; 
 			int numGames = 1;
 
 			ClientThread(Socket s, int count){
