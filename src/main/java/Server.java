@@ -153,6 +153,28 @@ public class Server{
 							}
 						}
 					}
+					// Send to all case
+					else if(msg.arguments.size() == 3){
+						// Send it to EVERYONE in a game
+						for(Game game : games){
+							if(game.player1 != null){
+								try{
+									game.player1.out.writeObject(ServerMessage.updateChat(msg.arguments.get(0),msg.arguments.get(1)));
+								}
+								catch(Exception e){
+									game.player1.handleDC();
+								}
+							}
+							if(game.player2 != null){
+								try{
+									game.player2.out.writeObject(ServerMessage.updateChat(msg.arguments.get(0),msg.arguments.get(1)));
+								}
+								catch(Exception e){
+									game.player2.handleDC();
+								}
+							}
+						}
+					}
 				}
 				else{
 					server.logEvent("Invalid Message Returned! Type: " + msg.messageType);
