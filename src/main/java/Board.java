@@ -110,8 +110,13 @@ public class Board {
         // Find top column in row, must be last added piece.
         int col = 0;
         boolean winFlag = false;
-        while(col < 7 && board[row][col] != null){
-            col++;
+        try {
+            while(col < 7 && board[row][col] != null){
+                col++;
+            }
+            
+        } catch (Exception e) {
+            col = 6;
         }
         // Either col is at top (violated first case)
         // or [row][col] was null, therefore [row][col - 1] will have the last chip :)
