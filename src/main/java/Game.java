@@ -89,7 +89,7 @@ public class Game{
                 // Game is over, end it!
                 endGame();
             }
-            else if (gameBoard.checkFull()) {
+            else if (true){ //gameBoard.checkFull()) {
                 try {
                     player1.out.writeObject(ServerMessage.endGame(2, player2.username));
                     player2.out.writeObject(ServerMessage.endGame(2,player1.username));

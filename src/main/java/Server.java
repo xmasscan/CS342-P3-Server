@@ -22,6 +22,9 @@ public class Server{
 	TheServer server;
 	ArrayList<Game> games;
 	int numGames;
+	ArrayList<ArrayList<String>> rematches;
+	ArrayList<Integer> rematchesAcceptance;
+	Integer numRematches = new Integer(0);
 	
 	Server(){
 		// Init relevant data
@@ -74,11 +77,12 @@ public class Server{
 		 * startGame()
 		 * Makes a new, publicly accessible game.
 		 */
-		public void startGame(ClientThread client){
+		public Game startGame(ClientThread client){
 			Game game = new Game(this);
 			games.add(game);
 			game.connect(client);
 			client.currentGame = game;
+			return game;
 		}
 
 		/**
@@ -313,6 +317,77 @@ public class Server{
 				}
 			}
 
+
+			public void handleRematch(Message msg) {
+				ArrayList<String> usernameList = new ArrayList<String>();
+				usernameList.add(username);
+				usernameList.add(msg.arguments.get(1));
+				synchronized(rematches) {
+				if (Boolean.parseBoolean(msg.arguments.get(0))){
+					for (int i = 0; i < numRematches; i++) {
+						boolean isTheRightRematch =false;
+						if (rematches.get(i).get(0).equals(this.username)) {
+							if (rematches.get(i).get(1).equals(msg.arguments.get(1))) {
+								isTheRightRematch = true;
+							}
+						} else if (rematches.get(i).get(0).equals(msg.arguments.get(1))) {
+							if (rematches.get(i).get(1).equals(username)) {
+								isTheRightRematch = true;
+							}
+						}
+						if (isTheRightRematch) {
+							if (rematchesAcceptance.get(i) == 0 || Boolean.parseBoolean( msg.arguments.get(0))) {
+								try {
+									out.writeObject(ServerMessage.rematch(false));
+								} catch (Exception e) {
+									// TODO: handle exception
+								}
+								
+
+							} else {
+								try {
+									Game game = server.startGame(this);
+
+									for (ClientThread client : clients) {
+										if (client.username.equals(msg.arguments.get(1))) {
+											game.connect(client);
+											this.out.writeObject(ServerMessage.inMatch(0));
+											client.out.writeObject(ServerMessage.inMatch(1));
+											rematches.remove(i);
+											rematchesAcceptance.remove(i);
+										}
+									}
+
+
+								} catch (Exception e) {
+									// TODO: handle exception
+								}
+							}
+						}
+						
+					}
+
+					rematches.add(usernameList);
+					rematchesAcceptance.add(1);
+					try {
+						this.out.writeObject(ServerMessage.waiting());
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+					
+				} else {
+					rematches.add(usernameList);
+					rematchesAcceptance.add(0);
+					try {
+						this.out.writeObject(ServerMessage.rematch(false));
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+				}
+
+			}
+			}
+
 			// TODO: implement literally 1984
 			/**
 			 * filterChat
@@ -385,6 +460,8 @@ public class Server{
 							// Chat Message Case
 							else if(data.messageType == 3){
 								handleChat(data);
+							} else if (data.messageType == 5) {
+								handleRematch(data);
 							}
 						}
 					} catch (Exception e) {

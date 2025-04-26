@@ -23,6 +23,7 @@ public class ServerMessage implements Serializable {
      *  7 - does move
      *  8 - login
      *  9 - waiting()
+     *  10 - rematch
      * @param argv
      */
     ServerMessage(int messageType, ArrayList<String> argv) {
@@ -128,8 +129,11 @@ public class ServerMessage implements Serializable {
         } else {
             argv.add("Draw");
         }
+        argv.add(Opponent);
         return new ServerMessage(messageType, argv);
     }
+
+   
 
     public static ServerMessage updateInformation(String username, Integer gold, Integer elo, Integer visual) {
         int messageType = 5;
@@ -157,6 +161,15 @@ public class ServerMessage implements Serializable {
         // Cast order to an Integer object, then invoke toString on it
         // conversion from int to string
         argv.add(((Integer) order).toString());
+        return new ServerMessage(messageType, argv);
+    }
+
+    public static ServerMessage rematch(boolean rematchAccepted){
+        int messageType = 10;
+        ArrayList<String> argv = new ArrayList<String>();
+        // Cast order to an Integer object, then invoke toString on it
+        // conversion from int to string
+        argv.add(Boolean.toString(rematchAccepted));
         return new ServerMessage(messageType, argv);
     }
 }
