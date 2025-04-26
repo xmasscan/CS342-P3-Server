@@ -25,7 +25,7 @@ public class Server{
 	ArrayList<ArrayList<String>> rematches = new ArrayList<ArrayList<String>>();
 	ArrayList<Integer> rematchesAcceptance = new ArrayList<Integer>();
 	Integer numRematches = new Integer(0);
-	
+
 	Server(){
 		// Init relevant data
 		userNameList = new ArrayList<String>();
@@ -36,22 +36,22 @@ public class Server{
 		server = new TheServer();
 		server.start();
 	}
-	
+
 	//eventually fills the two arrays from either a file or a database figure it out
 	// Yeah we are not doing this, we have two days.
 //	public void fillSavedUsers(){
 //
 //	}
-	
+
 	public class TheServer extends Thread{
-		
+
 		public void run() {
 
 			try(ServerSocket mysocket = new ServerSocket(5555);){
 				System.out.println("Server is waiting for a client!");
-				
+
 				while(true) {
-			
+
 					ClientThread c = new ClientThread(mysocket.accept(), count);
 					clients.add(c);
 					c.start();
@@ -112,13 +112,19 @@ public class Server{
 			String username = "";
 			boolean loggedIn = false;
 			Game currentGame = null;
+			// Records whether the client has decided to accept the rematch.
+			// -1 = Undecided
+			// 0 = rejected
+			// 1 = accepted
+			// Reset to -1 after value is handled.
+			int rematchState = -1;
 
 			ObjectInputStream in;
 			ObjectOutputStream out;
-			
+
 			ClientThread(Socket s, int count){
 				this.connection = s;
-				this.count = count;	
+				this.count = count;
 			}
 
 			public void handleDC(){
@@ -285,7 +291,7 @@ public class Server{
 				// Code still running == all games were full
 				// Create a new game & add it to list
 				server.startGame(this);
-				
+
 			}
 
 
@@ -327,9 +333,12 @@ public class Server{
 			 * Allows the current user to attempt to initiate a rematch.
 			 * If the other user has returned to the main screen, reject their attempt.
 			 * If the other user also has attempted a rematch, accept their attempt!
+			 * @param accepted
+			 *  Boolean - Whether the user has accepted or denied a rematch
 			 */
-			public void handleRematch() {
-				//
+			public void handleRematch(boolean accepted) {
+				// Update current Game
+				this.currentGame.handleRematch(this, accepted);
 			}
 
 			// TODO: implement literally 1984
@@ -345,18 +354,18 @@ public class Server{
 				message.replace("Linux Sucks!", "Linux Rocks!");
 				return message;
 			}
-			
+
 			public void run(){
-					
+
 				try {
 					in = new ObjectInputStream(connection.getInputStream());
 					out = new ObjectOutputStream(connection.getOutputStream());
-					connection.setTcpNoDelay(true);	
+					connection.setTcpNoDelay(true);
 				}
 				catch(Exception e) {
 					System.out.println("Streams not open");
 				}
-				
+
 				server.logEvent("New client on server! Client #"+count);
 
 				while(true) {
@@ -402,9 +411,22 @@ public class Server{
 							// Chat Message Case
 							else if(data.messageType == 3){
 								handleChat(data);
-							} else if (data.messageType == 5) {
-								server.logEvent("Rematch Request Received!");
-								handleRematch();
+							}
+							// Handle "acceptRematch" message
+							else if (data.messageType == 5) {
+								boolean accepted;
+								// If arguments.get(0) == true, set to true, otherwise set it to false.
+                                accepted = data.arguments.get(0).compareTo("true") == 0;
+								// Extract username from message object.
+								String username = data.arguments.get(1);
+								// Log rematch request response.
+								if(accepted) {
+									server.logEvent("Rematch request received from: " + username);
+								}
+								else{
+									server.logEvent("Rematch denied by: " + username);
+								}
+								handleRematch(accepted);
 							}
 						}
 					} catch (Exception e) {
@@ -415,13 +437,13 @@ public class Server{
 
 
 				}//end of run
-			
-			
+
+
 		}//end of client thread
 }
 
 
-	
-	
 
-	
+
+
+

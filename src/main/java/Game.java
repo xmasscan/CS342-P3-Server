@@ -79,9 +79,9 @@ public class Game{
                 // Alert each player if they won or lost!
                 try{
                     // Alerts winner that they won.
-                    winner.out.writeObject(ServerMessage.endGame(1, winner.username));
+                    winner.out.writeObject(ServerMessage.endGame(1));
                     // Alerts the loser that they lost.
-                    loser.out.writeObject(ServerMessage.endGame(0, loser.username));
+                    loser.out.writeObject(ServerMessage.endGame(0));
                 }
                 catch(Exception e){
                     e.printStackTrace();
@@ -92,8 +92,8 @@ public class Game{
             else if (gameBoard.checkFull()) {
                 try {
                     gameOver = true;
-                    player1.out.writeObject(ServerMessage.endGame(2, player2.username));
-                    player2.out.writeObject(ServerMessage.endGame(2,player1.username));
+                    player1.out.writeObject(ServerMessage.endGame(2));
+                    player2.out.writeObject(ServerMessage.endGame(2));
                     endGame();
                     
                 } catch (Exception e) {
@@ -173,6 +173,26 @@ public class Game{
         }
     }
 
+
+    /**
+     * handleRematch
+     * Update appropriate ClientThread.matched value based on acceptRematch response.
+     * After value has been updated, boot user back to waiting where controller will handle players thusly.
+     * @param player
+     *  Server.ClientThread - the ClientThread which send the message
+     * @param accepted
+     *  boolean - Whether the client accepted the rematch or not.
+     */
+    public void handleRematch(Server.ClientThread player, boolean accepted) {
+        // Update ClientThread value based on acceptance of rematch
+        if(accepted){
+            player.rematchState = 1;
+        }
+        else{
+            player.rematchState = 0;
+        }
+    }
+
     /**
      * Handles Game Behavior when a player disconnects
      * @param player
@@ -208,7 +228,7 @@ public class Game{
             }
             // Attempt to inform winner they won, assuming they still are connected.
             try {
-                other.out.writeObject(ServerMessage.endGame(1, me.username ));
+                other.out.writeObject(ServerMessage.endGame(1));
                 gameOver = true;
                 endGame();
             }
