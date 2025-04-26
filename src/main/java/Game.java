@@ -280,6 +280,44 @@ public class Game{
                     this.player1.handleDC();
                 }
             }
+            // Initial Rejection case
+            // When the first message back is a rejection of the rematch
+            else{
+                // alert player1
+                if(this.player1 != null){
+                    int winState = -1;
+                    if(winner == 1){
+                        winState = 1;
+                    }
+                    else if (winner == 2){
+                        winState = 0;
+                    }
+                    try {
+                        this.player1.out.writeObject(ServerMessage.endGame(winState));
+                    }
+                    catch(Exception e){
+                        this.player1.handleDC();
+                    }
+                    // End the game.
+                    this.endGame();
+                }
+                // alert player 2
+                if(this.player2 != null){
+                    int winState = -1;
+                    if(winner == 2){
+                        winState = 1;
+                    }
+                    else if (winner == 1){
+                        winState = 0;
+                    }
+                    try{
+                        this.player2.out.writeObject(ServerMessage.endGame(winState));
+                    }
+                    catch(Exception e){
+                        this.player2.handleDC();
+                    }
+                }
+            }
             return;
         }
 
@@ -433,7 +471,7 @@ public class Game{
                 endGame();
             }
             catch (Exception e) {
-                e.printStackTrace();
+                other.handleDC();
                 // If this fails, other user DC'd, just leave it.
                 winner = -1;
                 return;
