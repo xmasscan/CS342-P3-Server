@@ -43,7 +43,7 @@ public class Board {
      */
     public void printBoard(){
         for(int i = 5; i >= 0; i--){
-            for(int j = 0; j < 6; j++){
+            for(int j = 0; j < 7; j++){
                 System.out.print("[");
                 if(board[j][i] == null){
                     System.out.print(" ");

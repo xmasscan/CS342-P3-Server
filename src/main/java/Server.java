@@ -346,7 +346,7 @@ public class Server{
 								} catch (Exception e) {
 									// TODO: handle exception
 								}
-								
+
 
 							} else {
 								try {
@@ -370,7 +370,7 @@ public class Server{
 							}
 							break;
 						}
-						
+
 					}
 
 					rematches.add(usernameList);
@@ -381,7 +381,7 @@ public class Server{
 					} catch (Exception e) {
 						e.printStackTrace();
 					}
-					
+
 				} else {
 					rematches.add(usernameList);
 					numRematches +=1;
@@ -469,12 +469,11 @@ public class Server{
 							else if(data.messageType == 3){
 								handleChat(data);
 							} else if (data.messageType == 5) {
-								System.out.println("rematch request recieved");
+								server.logEvent("Rematch Request Received!");
 								handleRematch(data);
 							}
 						}
 					} catch (Exception e) {
-						e.printStackTrace();
 						this.handleDC();
 					    break;
 					}
