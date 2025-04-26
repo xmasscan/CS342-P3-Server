@@ -31,6 +31,17 @@ public class Game{
         // Link to server
         this.server = server;
     }
+
+    /**
+     * resetGame
+     * Cleaner way to reset the state of the game when a rematch occurs.
+     */
+    public void resetGame(){
+        this.gameBoard.clearBoard();
+        this.currentMove = 0;
+        this.gameOver = false;
+        this.winner = -1;
+    }
     
     public boolean makeMove(int player, int row) {
         // Player 1 == move when even
@@ -60,7 +71,6 @@ public class Game{
         // Attempt to make a move!
         // If the move was successful, check the state of the board!
         if(validMove){
-            System.out.println("Player #" + player + ": Valid move!");
             // If the move caused the player to win...
             if(gameBoard.checkBoard(row)){
                 gameOver = true;
@@ -68,34 +78,54 @@ public class Game{
                 Server.ClientThread winner;
                 Server.ClientThread loser;
                 if(player == 1){
-                    winner = player1;
-                    loser = player2;
+                    this.winner = 1;
+                    try{
+                        this.player1.out.writeObject(ServerMessage.rematch());
+                    }
+                    catch(Exception e){
+                        this.player1.handleDC();
+                    }
+                    try{
+                        this.player2.out.writeObject(ServerMessage.rematch());
+                    }
+                    catch(Exception e){
+                        this.player2.handleDC();
+                    }
                 }
                 // otherwise, the winner must be player 2, then assign them as the winner!
                 else{
-                    winner = player2;
-                    loser = player1;
+                    this.winner = 2;
+                    try{
+                        this.player1.out.writeObject(ServerMessage.rematch());
+                    }
+                    catch(Exception e){
+                        this.player1.handleDC();
+                    }
+                    try{
+                        this.player2.out.writeObject(ServerMessage.rematch());
+                    }
+                    catch(Exception e){
+                        this.player2.handleDC();
+                    }
                 }
                 // Alert each player if they won or lost!
-                try{
-                    // Alerts winner that they won.
-                    winner.out.writeObject(ServerMessage.endGame(1));
-                    // Alerts the loser that they lost.
-                    loser.out.writeObject(ServerMessage.endGame(0));
-                }
-                catch(Exception e){
-                    e.printStackTrace();
-                }
-                // Game is over, end it!
-                endGame();
             }
             else if (gameBoard.checkFull()) {
                 try {
                     gameOver = true;
-                    player1.out.writeObject(ServerMessage.endGame(2));
-                    player2.out.writeObject(ServerMessage.endGame(2));
-                    endGame();
-                    
+                    this.winner = -1;
+                    try{
+                        this.player1.out.writeObject(ServerMessage.rematch());
+                    }
+                    catch(Exception e){
+                        this.player1.handleDC();
+                    }
+                    try{
+                        this.player2.out.writeObject(ServerMessage.rematch());
+                    }
+                    catch(Exception e){
+                        this.player2.handleDC();
+                    }
                 } catch (Exception e) {
                     e.printStackTrace();
                     // TODO: handle exception
@@ -117,8 +147,9 @@ public class Game{
      *  whether the connection was successful
      */
     public boolean connect(Server.ClientThread player){
+        // Reset rematchState when user joins a new game!
+        player.rematchState = -1;
         // If the first player slot is open, set this player as the first player.
-
         if(this.player1 == null){
             this.player1 = player;
             return true;
@@ -184,13 +215,181 @@ public class Game{
      * @param accepted
      *  boolean - Whether the client accepted the rematch or not.
      */
-    public void handleRematch(Server.ClientThread player, boolean accepted) {
+    public void handleRematch(Server.ClientThread player, boolean accepted){
         // Update ClientThread value based on acceptance of rematch
         if(accepted){
             player.rematchState = 1;
         }
         else{
             player.rematchState = 0;
+            // Alert other player of rejection if they would be waiting;
+            if(this.player1 != null && this.player1.rematchState == 1){
+                int winState = -1;
+                if(winner == 1){
+                    winState = 1;
+                }
+                else if (winner == 2){
+                    winState = 0;
+                }
+                try{
+                    this.player1.out.writeObject(ServerMessage.endGame(winState));
+                }
+                catch(Exception e){
+                    this.player1.handleDC();
+                }
+                // Now let player 2 leave too!
+                if(winState == 1){
+                    winState = 0;
+                }
+                else if(winState == 0){
+                    winState = 1;
+                }
+                try {
+                    this.player2.out.writeObject(ServerMessage.endGame(winState));
+                }
+                catch(Exception e){
+                    this.player2.handleDC();
+                }
+            }
+            // Player 2 != player case
+            if(this.player2 != null && this.player2.rematchState == 1){
+                int winState = -1;
+                if(winner == 2){
+                    winState = 1;
+                }
+                else if (winner == 1){
+                    winState = 0;
+                }
+                try{
+                    this.player2.out.writeObject(ServerMessage.endGame(winState));
+                }
+                catch(Exception e){
+                    this.player2.handleDC();
+                }
+                // Let Player 1 Free!
+                if(winState == 1){
+                    winState = 0;
+                }
+                else if(winState == 0){
+                    winState = 1;
+                }
+                try {
+                    this.player1.out.writeObject(ServerMessage.endGame(winState));
+                }
+                catch(Exception e){
+                    this.player1.handleDC();
+                }
+            }
+            return;
+        }
+
+        // Code still running = player wanted a rematch!
+
+        // If either player has already disconnected, no rematch possible.
+        if(this.player1 == null || this.player2 == null){
+            // Tell the other player that the game is over.
+            // This can only be received after the game is over already, so just send the final state.
+            int winState = -1;
+            if(winner == 1){
+                if(this.player1 == player)
+                    winState = 1;
+                else
+                    winState = 0;
+            }
+            else if (winner == 2){
+                if(this.player2 == player)
+                    winState = 1;
+                else
+                    winState = 0;
+            }
+            try{
+                player.out.writeObject(ServerMessage.endGame(winState));
+            }
+            catch (Exception e){
+                // if player has disconnected mid-transfer, disconnect them
+                player.handleDC();
+            }
+        }
+        // Rejection Case
+        // Both players are still connected to the server, but the other player rejected
+        else if(this.player1.rematchState == 0 || this.player2.rematchState == 0){
+            // If other player has rejected, they won't be waiting for a response.
+            // Send the endGame() message so their state is updated.
+            try{
+                int winState = -1;
+                if(winner == 1){
+                    winState = 1;
+                }
+                else if (winner == 2){
+                    winState = 0;
+                }
+                player.out.writeObject(ServerMessage.endGame(winState));
+            }
+            catch (Exception e){
+                player.handleDC();
+            }
+        }
+        // Indeterminate Case; Other player still has not decided.
+        else if(this.player1.rematchState == -1 || this.player2.rematchState == -1){
+            // If a player has initiated a rematch and the other one hasn't responded yet
+            // They should be waiting on the waiting screen!
+            try{
+                player.out.writeObject(ServerMessage.waiting());
+            }
+            catch (Exception e){
+                player.handleDC();
+            }
+        }
+        // Accept State
+        // Both players are still connected AND nobody has rejected the rematch.
+        else{
+            // We only know the players are still connected as of the if statement.
+            // Assume the player has dc'd if an exception is thrown.
+            try{
+                this.player1.out.writeObject(ServerMessage.inMatch(0));
+            }
+            catch (Exception e){
+                this.player1.handleDC();
+                int winState = -1;
+                if(winner == 2){
+                    winState = 1;
+                }
+                else if (winner == 1){
+                    winState = 0;
+                }
+                try{
+                    // Update Player 2 with state if they are still connected & waiting
+                    this.player2.out.writeObject(ServerMessage.endGame(winState));
+                }
+                catch (Exception e2){
+                    // If Player 2 also dc'd, handle it.
+                    this.player2.handleDC();
+                }
+            }
+            // Now attempt to reconnect Player 2 to this game!
+            try{
+                this.player2.out.writeObject(ServerMessage.inMatch(1));
+            }
+            catch (Exception e){
+                this.player2.handleDC();
+                int winState = -1;
+                if(winner == 1){
+                    winState = 1;
+                }
+                else if (winner == 2){
+                    winState = 0;
+                }
+                try{
+                    this.player1.out.writeObject(ServerMessage.endGame(winState));
+                }
+                catch (Exception e2){
+                    this.player1.handleDC();
+                }
+            }
+
+            // Code still running == Both players accepted the rematch!
+            // Reset state of board.
+            this.resetGame();
         }
     }
 

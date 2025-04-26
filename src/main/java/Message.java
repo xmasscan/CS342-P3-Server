@@ -18,6 +18,7 @@ public class Message implements Serializable {
      *  2 = Move ; send an attempted move to server
      *  3 = Chat ; send chat message to server
      *  4 = StatusUpdate ; TBD, mostly just ambient/bg data that may be important
+     *  5 = acceptRematch decides if the person wants a rematch after the match
      * ArrayList<String> arguments
      *  Everything in these arguments will either be a String, int, or bool.
      *  Given the type, we know the type of each value in advance, so this data can be converted again when Deserialized.
@@ -128,10 +129,17 @@ public class Message implements Serializable {
         return new Message(messageType, argv);
     }
 
-    // TBD, do what you will with this later
-    // remember to fittingly update the signature and behavior if u do
-    public void updateStatus(int coordinate){
-
+    public static Message acceptRematch(boolean hasAccepted) {
+        int messageType = 5;
+        // Build Arguments
+        ArrayList<String> argv = new ArrayList<>();
+        if(hasAccepted){
+            argv.add("true");
+        }
+        else{
+            argv.add("false");
+        }
+        return new Message(messageType, argv);
     }
 
 }

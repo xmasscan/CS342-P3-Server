@@ -482,7 +482,6 @@ public class Server{
 							else if (data.messageType == 2) {
 								System.out.println(data.arguments.get(0));
 								if(this.currentGame.player1.username.equals(this.username)){
-
 									makeMove(1, Integer.parseInt(data.arguments.get(0)));
 								} else {
 									makeMove(2, Integer.parseInt(data.arguments.get(0)));
@@ -497,8 +496,6 @@ public class Server{
 								boolean accepted;
 								// If arguments.get(0) == true, set to true, otherwise set it to false.
                                 accepted = data.arguments.get(0).compareTo("true") == 0;
-								// Extract username from message object.
-								String username = data.arguments.get(1);
 								// Log rematch request response.
 								if(accepted) {
 									server.logEvent("Rematch request received from: " + username);
@@ -510,7 +507,11 @@ public class Server{
 							}
 						}
 					} catch (Exception e) {
+<<<<<<< Updated upstream
 						e.printStackTrace();
+=======
+						server.logEvent("Message from user: " + count + " failed because of " + e.getMessage());
+>>>>>>> Stashed changes
 						this.handleDC();
 					    break;
 					}
