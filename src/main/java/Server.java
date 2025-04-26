@@ -507,11 +507,6 @@ public class Server{
 							}
 						}
 					} catch (Exception e) {
-<<<<<<< Updated upstream
-						e.printStackTrace();
-=======
-						server.logEvent("Message from user: " + count + " failed because of " + e.getMessage());
->>>>>>> Stashed changes
 						this.handleDC();
 					    break;
 					}
