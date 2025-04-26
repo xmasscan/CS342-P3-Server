@@ -49,10 +49,10 @@ public class ServerMessage implements Serializable {
         return new ServerMessage(messageType, argv);
     }
 
-    public static ServerMessage Login(){
+    public static ServerMessage Login(String username){
         int messageType = 8;
         ArrayList<String> argv = new ArrayList<>();
-        argv.add("OK");
+        argv.add(username);
         return new ServerMessage(messageType, argv);
     }
 

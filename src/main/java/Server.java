@@ -128,16 +128,34 @@ public class Server{
 			}
 
 			/**
-			 * Handles what is expected to be a chat message Message.
-			 * @return
-			 *  The chat message sent as a String.
+			 *
 			 */
-			public String handleChat(Message msg){
+			public void handleChat(Message msg){
 				if(msg.messageType == 3){
-					return msg.arguments.get(0);
+					// Regular Case
+					if(msg.arguments.size() == 2){
+						// Update Player 1's GUI
+						if(this.currentGame.player1 != null){
+							try{
+								this.currentGame.player1.out.writeObject(ServerMessage.updateChat(msg.arguments.get(0),msg.arguments.get(1)));
+							}
+							catch(Exception e){
+								currentGame.player1.handleDC();
+							}
+						}
+						// Update Player 2's GUI
+						if(this.currentGame.player2 != null){
+							try{
+								this.currentGame.player2.out.writeObject(ServerMessage.updateChat(msg.arguments.get(0),msg.arguments.get(1)));
+							}
+							catch(Exception e){
+								currentGame.player2.handleDC();
+							}
+						}
+					}
 				}
 				else{
-					return "Invalid Message Returned! Type: " + msg.messageType;
+					server.logEvent("Invalid Message Returned! Type: " + msg.messageType);
 				}
 			}
 
@@ -172,7 +190,7 @@ public class Server{
 					userNameList.add(username);
 					server.logEvent("User #" + count + " signed up with username: " + username);
 					try{
-						out.writeObject(ServerMessage.Login());
+						out.writeObject(ServerMessage.Login(username));
 						return;
 					} catch (Exception e){
 						e.printStackTrace();
@@ -256,16 +274,37 @@ public class Server{
 				if(msg.messageType == 3){
 					// Chat Message Argv:
 					// index 0: message
-					String chatMessage = msg.arguments.get(0);
+					String username = msg.arguments.get(0);
+					String chatMessage = msg.arguments.get(1);
 
 					// TODO: filters or whatever you want to validate messages here later
-
+					String filteredMessage = filterChat(chatMessage);
 					// Code still running == message is allowed to go through
 					// TODO: Send chat message to server
+					if(filteredMessage.compareTo("") != 0){
+						// Alert game that message has been received! Update everyone!
+						this.currentGame.sendMessage(username,filteredMessage);
+					}
 				}
 				else{
 					server.logEvent("Attempted to handle Chat Message, instead got message of type " + msg.messageType);
 				}
+			}
+
+			// TODO: implement literally 1984
+			/**
+			 * filterChat
+			 * Returns the message after it has been filtered.
+			 * @param message
+			 * 	The message to filter
+			 * @return
+			 * 	The filtered message
+			 */
+			public String filterChat(String message){
+				if(message.equals("Linux Sucks!")){
+					return "Linux Rocks!";
+				}
+				return message;
 			}
 			
 			public void run(){

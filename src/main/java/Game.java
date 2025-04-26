@@ -140,17 +140,23 @@ public class Game{
         return(!(this.player1 == null || this.player2 == null));
     }
 
-    /**
-     * getTurn
-     * Figures out which player's turn it is
-     * @return
-     *  The ClientThread coorelating to the player whose turn it currently is.
-     */
-    public Server.ClientThread getTurn(){
-        if(currentMove % 2 == 0){
-            return player1;
+    public void sendMessage(String username, String message) {
+        if(this.player1 != null){
+            try{
+                player1.out.writeObject(ServerMessage.updateChat(username, message));
+            }
+            catch(Exception e){
+                this.handleDC(player1);
+            }
         }
-        return player2;
+        if(this.player2 != null){
+            try{
+                player2.out.writeObject(ServerMessage.updateChat(username, message));
+            }
+            catch(Exception e){
+                this.handleDC(player2);
+            }
+        }
     }
 
     /**
@@ -205,5 +211,4 @@ public class Game{
     public void endGame(){
         server.endGame(this);
     }
-
 }
