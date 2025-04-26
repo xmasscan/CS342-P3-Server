@@ -22,8 +22,8 @@ public class Server{
 	TheServer server;
 	ArrayList<Game> games;
 	int numGames;
-	ArrayList<ArrayList<String>> rematches;
-	ArrayList<Integer> rematchesAcceptance;
+	ArrayList<ArrayList<String>> rematches = new ArrayList<ArrayList<String>>();
+	ArrayList<Integer> rematchesAcceptance = new ArrayList<Integer>();
 	Integer numRematches = new Integer(0);
 	
 	Server(){
@@ -144,6 +144,7 @@ public class Server{
 								this.currentGame.player1.out.writeObject(ServerMessage.updateChat(msg.arguments.get(0),msg.arguments.get(1)));
 							}
 							catch(Exception e){
+								e.printStackTrace();
 								currentGame.player1.handleDC();
 							}
 						}
@@ -153,6 +154,7 @@ public class Server{
 								this.currentGame.player2.out.writeObject(ServerMessage.updateChat(msg.arguments.get(0),msg.arguments.get(1)));
 							}
 							catch(Exception e){
+								e.printStackTrace();
 								currentGame.player2.handleDC();
 							}
 						}
@@ -166,6 +168,7 @@ public class Server{
 									game.player1.out.writeObject(ServerMessage.updateChat(msg.arguments.get(0),msg.arguments.get(1)));
 								}
 								catch(Exception e){
+									e.printStackTrace();
 									game.player1.handleDC();
 								}
 							}
@@ -174,6 +177,7 @@ public class Server{
 									game.player2.out.writeObject(ServerMessage.updateChat(msg.arguments.get(0),msg.arguments.get(1)));
 								}
 								catch(Exception e){
+									e.printStackTrace();
 									game.player2.handleDC();
 								}
 							}
@@ -355,6 +359,7 @@ public class Server{
 											client.out.writeObject(ServerMessage.inMatch(1));
 											rematches.remove(i);
 											rematchesAcceptance.remove(i);
+											numRematches -=1;
 										}
 									}
 
@@ -363,12 +368,14 @@ public class Server{
 									// TODO: handle exception
 								}
 							}
+							break;
 						}
 						
 					}
 
 					rematches.add(usernameList);
-					rematchesAcceptance.add(1);
+					rematchesAcceptance.add(new Integer(1));
+					numRematches +=1;
 					try {
 						this.out.writeObject(ServerMessage.waiting());
 					} catch (Exception e) {
@@ -377,6 +384,7 @@ public class Server{
 					
 				} else {
 					rematches.add(usernameList);
+					numRematches +=1;
 					rematchesAcceptance.add(0);
 					try {
 						this.out.writeObject(ServerMessage.rematch(false));
@@ -461,10 +469,12 @@ public class Server{
 							else if(data.messageType == 3){
 								handleChat(data);
 							} else if (data.messageType == 5) {
+								System.out.println("rematch request recieved");
 								handleRematch(data);
 							}
 						}
 					} catch (Exception e) {
+						e.printStackTrace();
 						this.handleDC();
 					    break;
 					}

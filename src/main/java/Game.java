@@ -89,8 +89,9 @@ public class Game{
                 // Game is over, end it!
                 endGame();
             }
-            else if (true){ //gameBoard.checkFull()) {
+            else if (gameBoard.checkFull()) {
                 try {
+                    gameOver = true;
                     player1.out.writeObject(ServerMessage.endGame(2, player2.username));
                     player2.out.writeObject(ServerMessage.endGame(2,player1.username));
                     endGame();
@@ -157,6 +158,7 @@ public class Game{
                 player1.out.writeObject(ServerMessage.updateChat(username, message));
             }
             catch(Exception e){
+                e.printStackTrace();
                 this.handleDC(player1);
             }
         }
@@ -165,6 +167,7 @@ public class Game{
                 player2.out.writeObject(ServerMessage.updateChat(username, message));
             }
             catch(Exception e){
+                e.printStackTrace();
                 this.handleDC(player2);
             }
         }
