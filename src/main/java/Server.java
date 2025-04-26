@@ -80,10 +80,29 @@ public class Server{
 		 * Makes a new, publicly accessible game.
 		 */
 		public void startGame(ClientThread client){
-			Game game = new Game();
+			Game game = new Game(this);
 			games.add(game);
 			game.connect(client);
 			client.currentGame = game;
+		}
+
+		/**
+		 * endGame
+		 * Attempt to delete a game.
+		 * If it is over, remove it from the games ArrayList & let the GC handle it
+		 * @param game
+		 */
+		public void endGame(Game game){
+			if(game.gameOver){
+				// Sever Players from game
+				if(game.player1 != null){
+					game.player1.currentGame = null;
+				}
+				if(game.player2 != null){
+					game.player2.currentGame = null;
+				}
+				games.remove(game);
+			}
 		}
 	}
 
@@ -114,45 +133,56 @@ public class Server{
 			}
 
 			/**
-			 * Handles what is expected to be a chat message Message.
-			 * @return
-			 *  The chat message sent as a String.
+			 *
 			 */
 			public void handleChat(Message msg){
-				
 				if(msg.messageType == 3){
-					try {
-						this.out.writeObject(ServerMessage.acceptChat());
-					} catch (Exception e) {
-						// TODO: handle exception
-					}
-					
-					String user2 = msg.arguments.get(0);
-					if (user2.equals("")) {
-						for (ClientThread  client : clients) {
-							try {
-								client.out.writeObject(ServerMessage.updateChat(this.username, msg.arguments.get(1)));
-							} catch (Exception e) {
-								// TODO: handle exception
-								e.printStackTrace();
+					// Regular Case
+					if(msg.arguments.size() == 2){
+						// Update Player 1's GUI
+						if(this.currentGame.player1 != null){
+							try{
+								this.currentGame.player1.out.writeObject(ServerMessage.updateChat(msg.arguments.get(0),msg.arguments.get(1)));
 							}
-							
+							catch(Exception e){
+								currentGame.player1.handleDC();
+							}
 						}
-					} else {
-						for (ClientThread  client : clients) {
-							if (client.username.equals(msg.arguments.get(0))) {
-								try {
-									client.out.writeObject(ServerMessage.updateChat(this.username, msg.arguments.get(1)));
-								} catch (Exception e) {
-									// TODO: handle exception
-									e.printStackTrace();
+						// Update Player 2's GUI
+						if(this.currentGame.player2 != null){
+							try{
+								this.currentGame.player2.out.writeObject(ServerMessage.updateChat(msg.arguments.get(0),msg.arguments.get(1)));
+							}
+							catch(Exception e){
+								currentGame.player2.handleDC();
+							}
+						}
+					}
+					// Send to all case
+					else if(msg.arguments.size() == 3){
+						// Send it to EVERYONE in a game
+						for(Game game : games){
+							if(game.player1 != null){
+								try{
+									game.player1.out.writeObject(ServerMessage.updateChat(msg.arguments.get(0),msg.arguments.get(1)));
+								}
+								catch(Exception e){
+									game.player1.handleDC();
+								}
+							}
+							if(game.player2 != null){
+								try{
+									game.player2.out.writeObject(ServerMessage.updateChat(msg.arguments.get(0),msg.arguments.get(1)));
+								}
+								catch(Exception e){
+									game.player2.handleDC();
 								}
 							}
 						}
 					}
-
 				}
 				else{
+					server.logEvent("Invalid Message Returned! Type: " + msg.messageType);
 				}
 			}
 
@@ -199,6 +229,7 @@ public class Server{
 					try{
 						out.writeObject(ServerMessage.Login());
 						out.writeObject(ServerMessage.sendClientList(new Integer(numGames), userNameList));
+
 						return;
 					} catch (Exception e){
 						e.printStackTrace();
@@ -269,26 +300,52 @@ public class Server{
 
 			//check to see if move is valid, make a status update, update move on other cleints side
 			public void makeMove(int player, int row){
-				this.currentGame.makeMove(player, row);
-
+				boolean validMove = false;
+				while(!validMove) {
+					validMove = this.currentGame.makeMove(player, row);
+					if(!validMove) {
+						server.logEvent("User #" + count + " attempted an invalid move!");
+					}
+				}
 			}
 
 			public void recieveChat(Message msg){
-				if(msg.messageType == 4){
+				if(msg.messageType == 3){
 					// Chat Message Argv:
 					// index 0: message
-					String chatMessage = msg.arguments.get(0);
+					String username = msg.arguments.get(0);
+					String chatMessage = msg.arguments.get(1);
 
 
 
 					// TODO: filters or whatever you want to validate messages here later
-
+					String filteredMessage = filterChat(chatMessage);
 					// Code still running == message is allowed to go through
 					// TODO: Send chat message to server
+					if(filteredMessage.compareTo("") != 0){
+						// Alert game that message has been received! Update everyone!
+						this.currentGame.sendMessage(username,filteredMessage);
+					}
 				}
 				else{
 					server.logEvent("Attempted to handle Chat Message, instead got message of type " + msg.messageType);
 				}
+			}
+
+			// TODO: implement literally 1984
+			/**
+			 * filterChat
+			 * Returns the message after it has been filtered.
+			 * @param message
+			 * 	The message to filter
+			 * @return
+			 * 	The filtered message
+			 */
+			public String filterChat(String message){
+				if(message.equals("Linux Sucks!")){
+					return "Linux Rocks!";
+				}
+				return message;
 			}
 			
 			public void run(){
@@ -341,8 +398,7 @@ public class Server{
 
 									makeMove(1, Integer.parseInt(data.arguments.get(0)));
 								} else {
-									makeMove(0, Integer.parseInt(data.arguments.get(0)));
-									
+									makeMove(2, Integer.parseInt(data.arguments.get(0)));
 								}
 							}
 							// Chat Message Case
