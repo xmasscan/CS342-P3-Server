@@ -97,6 +97,7 @@ public class Game{
                     endGame();
                     
                 } catch (Exception e) {
+                    e.printStackTrace();
                     // TODO: handle exception
                 }
                 
@@ -233,6 +234,7 @@ public class Game{
                 endGame();
             }
             catch (Exception e) {
+                e.printStackTrace();
                 // If this fails, other user DC'd, just leave it.
                 winner = -1;
                 return;

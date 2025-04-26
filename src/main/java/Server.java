@@ -339,6 +339,85 @@ public class Server{
 			public void handleRematch(boolean accepted) {
 				// Update current Game
 				this.currentGame.handleRematch(this, accepted);
+
+
+				/*former code fore ideas */
+				/*
+				 * public void handleRematch(Message msg) {
+				ArrayList<String> usernameList = new ArrayList<String>();
+				usernameList.add(username);
+				usernameList.add(msg.arguments.get(1));
+				synchronized(rematches) {
+				if (Boolean.parseBoolean(msg.arguments.get(0))){
+					for (int i = 0; i < numRematches; i++) {
+						boolean isTheRightRematch =false;
+						if (rematches.get(i).get(0).equals(this.username)) {
+							if (rematches.get(i).get(1).equals(msg.arguments.get(1))) {
+								isTheRightRematch = true;
+							}
+						} else if (rematches.get(i).get(0).equals(msg.arguments.get(1))) {
+							if (rematches.get(i).get(1).equals(username)) {
+								isTheRightRematch = true;
+							}
+						}
+						if (isTheRightRematch) {
+							if (rematchesAcceptance.get(i) == 0 || Boolean.parseBoolean( msg.arguments.get(0))) {
+								try {
+									out.writeObject(ServerMessage.rematch(false));
+								} catch (Exception e) {
+									e.printStackTrace();
+									// TODO: handle exception
+								}
+
+
+							} else {
+								try {
+									Game game = server.startGame(this);
+
+									for (ClientThread client : clients) {
+										if (client.username.equals(msg.arguments.get(1))) {
+											game.connect(client);
+											this.out.writeObject(ServerMessage.inMatch(0));
+											client.out.writeObject(ServerMessage.inMatch(1));
+											rematches.remove(i);
+											rematchesAcceptance.remove(i);
+											numRematches -=1;
+										}
+									}
+
+
+								} catch (Exception e) {
+									e.printStackTrace();
+									// TODO: handle exception
+								}
+							}
+							break;
+						}
+
+					}
+
+					rematches.add(usernameList);
+					rematchesAcceptance.add(new Integer(1));
+					numRematches +=1;
+					try {
+						this.out.writeObject(ServerMessage.waiting());
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+
+				} else {
+					rematches.add(usernameList);
+					numRematches +=1;
+					rematchesAcceptance.add(0);
+					try {
+						this.out.writeObject(ServerMessage.rematch(false));
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+				}
+
+			}
+				 */
 			}
 
 			// TODO: implement literally 1984
@@ -363,6 +442,7 @@ public class Server{
 					connection.setTcpNoDelay(true);
 				}
 				catch(Exception e) {
+					e.printStackTrace();
 					System.out.println("Streams not open");
 				}
 
@@ -430,6 +510,7 @@ public class Server{
 							}
 						}
 					} catch (Exception e) {
+						e.printStackTrace();
 						this.handleDC();
 					    break;
 					}
